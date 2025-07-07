@@ -12,6 +12,8 @@ import CreateAssessment from "./pages/CreateAssessment";
 import AssessmentCandidates from "./pages/AssessmentCandidates";
 import CandidateResult from "./pages/CandidateResult";
 
+import InviteCandidate from "./pages/InviteCandidate";
+
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
@@ -39,6 +41,7 @@ const App = () => {
                 path="/candidate/:candidateId/result/:assessmentId"
                 element={<CandidateResult />}
               />
+              <Route path="/invite-candidate" element={<InviteCandidate />} />
             </Routes>
           </div>
         </div>

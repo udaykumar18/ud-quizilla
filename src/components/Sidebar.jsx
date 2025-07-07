@@ -1,7 +1,7 @@
 // components/Sidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, FileText, Users } from "lucide-react";
+import { BookOpen, FileText, Users, UserPlus } from "lucide-react";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -10,6 +10,7 @@ const Sidebar = () => {
     { path: "/", label: "Dashboard", icon: BookOpen },
     { path: "/question-sets", label: "Question Sets", icon: FileText },
     { path: "/assessments", label: "Assessments", icon: Users },
+    { path: "/invite-candidate", label: "Invite Candidate", icon: UserPlus },
   ];
 
   const isActive = (path) => {

@@ -100,6 +100,22 @@ const api = {
     );
     return await res.json();
   },
+
+  inviteCandidate: async (data) => {
+    const response = await fetch(`${API_BASE}/invite-candidate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const json = await response.json();
+    if (!response.ok) {
+      console.error("Invite failed:", json);
+      throw new Error(json?.error || "Invite failed");
+    }
+
+    return json;
+  },
 };
 
 export default api;

@@ -1,7 +1,6 @@
 // services/api.js
-// const API_BASE = "https://opamri0e6c.execute-api.us-east-1.amazonaws.com/Prod";
 
-// const API_BASE = "https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev";
+// const API_BASE = "https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev"; //Self Stack
 const API_BASE = "https://e02xf7i573.execute-api.ap-south-1.amazonaws.com/dev";
 
 const api = {
@@ -112,6 +111,28 @@ const api = {
     if (!response.ok) {
       console.error("Invite failed:", json);
       throw new Error(json?.error || "Invite failed");
+    }
+
+    return json;
+  },
+  startAssessment: async (payload) => {
+    console.log("[API] POST /start-assessments", payload);
+
+    const response = await fetch(
+      "https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev/start-assessments",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const json = await response.json();
+
+    console.log("[API Response]", response.status, json);
+
+    if (!response.ok) {
+      throw new Error(json?.error || "Failed to start assessment");
     }
 
     return json;

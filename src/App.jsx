@@ -1,4 +1,3 @@
-// App.jsx
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -30,10 +29,6 @@ const AppLayout = ({ children }) => {
 
   if (loading) return <div className="p-8">Loading...</div>;
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
   return (
     <div className="flex h-screen bg-gray-100">
       {role === "admin" && <Sidebar />}
@@ -43,94 +38,97 @@ const AppLayout = ({ children }) => {
   );
 };
 
-const AppRoutes = () => {
+const PrivateRoutes = () => {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/auth/callback" element={<AuthCallback />} />
-
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]} element={<Dashboard />} />
-        }
-      />
-      <Route
-        path="/question-sets"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]} element={<QuestionSets />} />
-        }
-      />
-      <Route
-        path="/create-question-set"
-        element={
-          <ProtectedRoute
-            allowedRoles={["admin"]}
-            element={<CreateQuestionSet />}
-          />
-        }
-      />
-      <Route
-        path="/questions/:setId"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]} element={<Questions />} />
-        }
-      />
-      <Route
-        path="/assessments"
-        element={
-          <ProtectedRoute allowedRoles={["admin"]} element={<Assessments />} />
-        }
-      />
-      <Route
-        path="/create-assessment"
-        element={
-          <ProtectedRoute
-            allowedRoles={["admin"]}
-            element={<CreateAssessment />}
-          />
-        }
-      />
-      <Route
-        path="/assessment/:id/candidates"
-        element={
-          <ProtectedRoute
-            allowedRoles={["admin"]}
-            element={<AssessmentCandidates />}
-          />
-        }
-      />
-      <Route
-        path="/candidate/:candidateId/result/:assessmentId"
-        element={
-          <ProtectedRoute
-            allowedRoles={["admin"]}
-            element={<CandidateResult />}
-          />
-        }
-      />
-      <Route
-        path="/invite-candidate"
-        element={
-          <ProtectedRoute
-            allowedRoles={["admin"]}
-            element={<InviteCandidate />}
-          />
-        }
-      />
-      <Route
-        path="/start-assessment"
-        element={
-          <ProtectedRoute
-            allowedRoles={["candidate"]}
-            element={<StartAssessment />}
-          />
-        }
-      />
-
-      {/* fallback route */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+    <AppLayout>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]} element={<Dashboard />} />
+          }
+        />
+        <Route
+          path="/question-sets"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<QuestionSets />}
+            />
+          }
+        />
+        <Route
+          path="/create-question-set"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<CreateQuestionSet />}
+            />
+          }
+        />
+        <Route
+          path="/questions/:setId"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]} element={<Questions />} />
+          }
+        />
+        <Route
+          path="/assessments"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<Assessments />}
+            />
+          }
+        />
+        <Route
+          path="/create-assessment"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<CreateAssessment />}
+            />
+          }
+        />
+        <Route
+          path="/assessment/:id/candidates"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<AssessmentCandidates />}
+            />
+          }
+        />
+        <Route
+          path="/candidate/:candidateId/result/:assessmentId"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<CandidateResult />}
+            />
+          }
+        />
+        <Route
+          path="/invite-candidate"
+          element={
+            <ProtectedRoute
+              allowedRoles={["admin"]}
+              element={<InviteCandidate />}
+            />
+          }
+        />
+        <Route
+          path="/start-assessment"
+          element={
+            <ProtectedRoute
+              allowedRoles={["candidate"]}
+              element={<StartAssessment />}
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AppLayout>
   );
 };
 
@@ -138,9 +136,11 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppLayout>
-          <AppRoutes />
-        </AppLayout>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/*" element={<PrivateRoutes />} />
+        </Routes>
       </AuthProvider>
       <Toaster />
     </Router>

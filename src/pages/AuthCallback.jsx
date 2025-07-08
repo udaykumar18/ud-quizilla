@@ -1,4 +1,3 @@
-// src/pages/AuthCallback.jsx
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
@@ -15,15 +14,10 @@ const AuthCallback = () => {
       } = await supabase.auth.getUser();
 
       if (authError || !user) {
-        console.error("Auth error:", authError);
+        console.error("AuthCallback → Auth error:", authError);
         toast.error("Authentication failed");
         return navigate("/login");
       }
-
-      // Debuging
-      console.log("User:", user);
-      console.log("Metadata:", user.user_metadata);
-      console.log("Selected Role:", localStorage.getItem("selectedRole"));
 
       const selectedRole = localStorage.getItem("selectedRole");
       if (!selectedRole) {
@@ -31,23 +25,28 @@ const AuthCallback = () => {
         return navigate("/login");
       }
 
-      const email = user.email;
-      if (selectedRole === "admin" && !email.endsWith("@antstack.io")) {
+      if (selectedRole === "admin" && !user.email.endsWith("@antstack.io")) {
         toast.error("Only @antstack.io emails can be admins");
         await supabase.auth.signOut();
         return navigate("/login");
       }
 
-      // Check if user already exists
-      const { data: existingUser } = await supabase
+      // Check or insert user in DB
+      const { data: existingUser, error: fetchError } = await supabase
         .schema("quizilla")
         .from("users")
         .select("id")
         .eq("id", user.id)
         .maybeSingle();
 
+      if (fetchError) {
+        console.error("AuthCallback → Error checking user:", fetchError);
+        toast.error("Internal error. Try again later.");
+        return navigate("/login");
+      }
+
       if (!existingUser) {
-        await supabase
+        const { error: insertError } = await supabase
           .schema("quizilla")
           .from("users")
           .insert({
@@ -56,12 +55,17 @@ const AuthCallback = () => {
             name: user.user_metadata?.full_name || user.email,
             role: selectedRole,
           });
+
+        if (insertError) {
+          console.error("AuthCallback → Insert error:", insertError);
+          toast.error("Error saving user info");
+          return navigate("/login");
+        }
       }
 
       localStorage.removeItem("selectedRole");
 
-      if (selectedRole === "admin") navigate("/");
-      else navigate("/start-assessment");
+      navigate(selectedRole === "admin" ? "/" : "/start-assessment");
     };
 
     handleAuth();

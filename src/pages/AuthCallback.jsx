@@ -20,6 +20,11 @@ const AuthCallback = () => {
         return navigate("/login");
       }
 
+      // Debuging
+      console.log("User:", user);
+      console.log("Metadata:", user.user_metadata);
+      console.log("Selected Role:", localStorage.getItem("selectedRole"));
+
       const selectedRole = localStorage.getItem("selectedRole");
       if (!selectedRole) {
         toast.error("No role selected. Please login again.");
@@ -39,15 +44,18 @@ const AuthCallback = () => {
         .from("users")
         .select("id")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (!existingUser) {
-        await supabase.schema("quizilla").from("users").insert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata.full_name,
-          role: selectedRole,
-        });
+        await supabase
+          .schema("quizilla")
+          .from("users")
+          .insert({
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.full_name || user.email,
+            role: selectedRole,
+          });
       }
 
       localStorage.removeItem("selectedRole");

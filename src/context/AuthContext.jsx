@@ -65,7 +65,14 @@ export const AuthProvider = ({ children }) => {
     // Listen to auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        if (event === "SIGNED_OUT") {
+          setUser(null);
+          setRole(null);
+          setAuthReady(true);
+          return;
+        }
+
+        if (event === "SIGNED_IN") {
           await loadUserAndRole();
         }
       }

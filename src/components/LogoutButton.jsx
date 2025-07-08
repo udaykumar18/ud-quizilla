@@ -1,8 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
 import toast from "react-hot-toast";
 
 const LogoutButton = () => {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     try {
       // Clear localStorage first
@@ -15,9 +18,7 @@ const LogoutButton = () => {
         toast.error("Failed to logout");
       } else {
         toast.success("Logged out");
-        // Don't navigate manually - let AuthContext handle the redirect
-        // The PrivateRoutes component will automatically redirect to /login
-        // when it detects the user is null
+        navigate("/login", { replace: true });
       }
     } catch (error) {
       console.error("Logout error:", error);

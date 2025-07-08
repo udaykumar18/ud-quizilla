@@ -37,6 +37,16 @@ const AppLayout = ({ children }) => {
 };
 
 const PrivateRoutes = () => {
+  const { user, authReady } = useAuth();
+
+  if (!authReady) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
     <AppLayout>
       <Routes>

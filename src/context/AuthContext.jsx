@@ -40,7 +40,11 @@ export const AuthProvider = ({ children }) => {
       error: authError,
     } = await supabase.auth.getUser();
 
-    if (!user || authError) return;
+    if (!user || authError) {
+      setUser(null);
+      setRole(null);
+      return;
+    }
 
     const { data: userData, error } = await supabase
       .schema("quizilla")

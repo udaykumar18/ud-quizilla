@@ -11,15 +11,14 @@ const LogoutButton = () => {
       // Clear localStorage first
       localStorage.clear();
 
-      const { error } = await supabase.auth.signOut();
+      await supabase.auth.signOut();
 
-      if (error) {
-        console.error("Logout error:", error);
-        toast.error("Failed to logout");
-      } else {
-        toast.success("Logged out");
+      toast.success("Logged out");
+
+      // Add a small delay to ensure auth state change is processed
+      setTimeout(() => {
         navigate("/login", { replace: true });
-      }
+      }, 100);
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Failed to logout");

@@ -1,13 +1,13 @@
-// components/Sidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { BookOpen, FileText, Users, UserPlus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import LogoutButton from "./LogoutButton";
 
 const UserInfo = () => {
   const { user, role } = useAuth();
   return (
-    <div className="px-6 py-4 border-t text-sm text-gray-600">
+    <div className="px-6 pt-4 pb-2 text-sm text-gray-600">
       <div>{user?.user_metadata?.full_name || "User"}</div>
       <div className="text-xs text-gray-500">{role}</div>
     </div>
@@ -32,11 +32,10 @@ const Sidebar = () => {
     return location.pathname.startsWith(path);
   };
 
-  // Hide sidebar completely for non-admins
   if (role !== "admin") return null;
 
   return (
-    <div className="w-64 bg-white shadow-md flex flex-col justify-between">
+    <div className="w-64 bg-white shadow-md h-screen flex flex-col justify-between">
       <div>
         <div className="p-6">
           <h2 className="text-xl font-bold text-gray-800">Quizilla</h2>
@@ -60,7 +59,11 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      <UserInfo />
+      {/* Footer Section */}
+      <div className="border-t px-6 py-4">
+        <UserInfo />
+        <LogoutButton />
+      </div>
     </div>
   );
 };

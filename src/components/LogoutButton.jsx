@@ -14,15 +14,18 @@ const LogoutButton = () => {
       console.error("Logout error:", error);
       toast.error("Failed to logout");
     } else {
+      // Clear localStorage to remove selectedRole or stale values
+      localStorage.clear();
+
       toast.success("Logged out");
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="text-red-600 hover:underline px-4 py-2"
+      className="text-red-600 hover:underline px-4 py-2 w-full text-left"
     >
       Logout
     </button>

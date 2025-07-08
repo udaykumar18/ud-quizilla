@@ -20,7 +20,8 @@ export const AuthProvider = ({ children }) => {
 
       if (user) {
         const { data: userData, error } = await supabase
-          .from("quizilla.users")
+          .schema("quizilla")
+          .from("users")
           .select("role")
           .eq("id", user.id)
           .single();

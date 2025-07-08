@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
+  const { refreshUserRole } = useAuth(); // Add this line
 
   useEffect(() => {
     const handleAuth = async () => {
@@ -61,6 +63,9 @@ const AuthCallback = () => {
           toast.error("Error saving user info");
           return navigate("/login");
         }
+
+        // Add this: Refresh the role in AuthContext after inserting new user
+        await refreshUserRole();
       }
 
       localStorage.removeItem("selectedRole");
@@ -69,7 +74,7 @@ const AuthCallback = () => {
     };
 
     handleAuth();
-  }, [navigate]);
+  }, [navigate, refreshUserRole]); // Add refreshUserRole to dependencies
 
   return <div className="p-8 text-center">Signing you in...</div>;
 };

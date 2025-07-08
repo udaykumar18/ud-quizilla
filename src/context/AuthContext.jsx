@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 
@@ -34,6 +33,27 @@ export const AuthProvider = ({ children }) => {
     setAuthReady(true);
   };
 
+  // Add this function to manually refresh role
+  const refreshUserRole = async () => {
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (!user || authError) return;
+
+    const { data: userData, error } = await supabase
+      .schema("quizilla")
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (!error && userData) {
+      setRole(userData.role);
+    }
+  };
+
   useEffect(() => {
     // Initial load
     loadUserAndRole();
@@ -51,7 +71,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, role, authReady }}>
+    <AuthContext.Provider value={{ user, role, authReady, refreshUserRole }}>
       {children}
     </AuthContext.Provider>
   );

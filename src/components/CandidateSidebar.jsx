@@ -1,7 +1,7 @@
-// components/Sidebar.jsx
+// components/CandidateSidebar.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BookOpen, FileText, Users, UserPlus } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const UserInfo = () => {
@@ -14,26 +14,14 @@ const UserInfo = () => {
   );
 };
 
-const Sidebar = () => {
+const CandidateSidebar = () => {
   const location = useLocation();
-  const { role } = useAuth();
 
-  const adminNavigation = [
-    { path: "/", label: "Dashboard", icon: BookOpen },
-    { path: "/question-sets", label: "Question Sets", icon: FileText },
-    { path: "/assessments", label: "Assessments", icon: Users },
-    { path: "/invite-candidate", label: "Invite Candidate", icon: UserPlus },
+  const navigationItems = [
+    { path: "/start-assessment", label: "Start Assessment", icon: BookOpen },
   ];
 
-  const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
-    return location.pathname.startsWith(path);
-  };
-
-  // Hide sidebar completely for non-admins
-  if (role !== "admin") return null;
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="w-64 bg-white shadow-md flex flex-col justify-between">
@@ -43,7 +31,7 @@ const Sidebar = () => {
         </div>
 
         <nav className="mt-6">
-          {adminNavigation.map((item) => (
+          {navigationItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
@@ -65,4 +53,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default CandidateSidebar;

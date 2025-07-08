@@ -24,10 +24,11 @@ export const AuthProvider = ({ children }) => {
           .from("users")
           .select("role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
-        if (error) {
-          console.error("Error fetching user role:", error);
+        if (error || !userData) {
+          console.error("Error fetching user role or no role found:", error);
+          setRole(null);
         } else {
           setUser(user);
           setRole(userData?.role || null);

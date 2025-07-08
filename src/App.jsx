@@ -25,9 +25,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppLayout = ({ children }) => {
-  const { user, role, loading } = useAuth();
-
-  if (loading) return <div className="p-8">Loading...</div>;
+  const { role } = useAuth();
 
   return (
     <div className="flex h-screen bg-gray-100">

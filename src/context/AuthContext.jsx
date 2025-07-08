@@ -11,32 +11,38 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
+
       const {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser();
 
       if (authError || !user) {
-        console.error("AuthContext → Supabase auth error:", authError);
+        console.warn("AuthContext → No Supabase user session.");
         setUser(null);
         setRole(null);
         setLoading(false);
         return;
       }
 
-      const { data: userData, error } = await supabase
+      const { data: userData, error: fetchError } = await supabase
         .schema("quizilla")
         .from("users")
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error("AuthContext → Error fetching user role:", error);
+      if (fetchError || !userData?.role) {
+        console.warn("AuthContext → User found but no DB role. Signing out.");
+        await supabase.auth.signOut(); // Force logout if user has no role in DB
+        setUser(null);
+        setRole(null);
+        setLoading(false);
+        return;
       }
 
       setUser(user);
-      setRole(userData?.role || null);
+      setRole(userData.role);
       setLoading(false);
     };
 

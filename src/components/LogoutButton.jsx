@@ -1,24 +1,14 @@
+// src/components/LogoutButton.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
 import toast from "react-hot-toast";
 
 const LogoutButton = () => {
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
     try {
-      // Clear localStorage first
-      localStorage.clear();
-
-      await supabase.auth.signOut();
-
+      localStorage.clear(); // Still needed
+      await supabase.auth.signOut(); // This will trigger the onAuthStateChange in AuthContext
       toast.success("Logged out");
-
-      // Add a small delay to ensure auth state change is processed
-      setTimeout(() => {
-        navigate("/login", { replace: true });
-      }, 100);
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("Failed to logout");

@@ -1,24 +1,27 @@
-// src/components/LogoutButton.jsx
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
 import toast from "react-hot-toast";
 
 const LogoutButton = () => {
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("Logout error:", error);
-      toast.error("Failed to logout");
-    } else {
-      // Clear localStorage to remove selectedRole or stale values
+    try {
+      // Clear localStorage first
       localStorage.clear();
 
-      toast.success("Logged out");
-      navigate("/login", { replace: true });
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout error:", error);
+        toast.error("Failed to logout");
+      } else {
+        toast.success("Logged out");
+        // Don't navigate manually - let AuthContext handle the redirect
+        // The PrivateRoutes component will automatically redirect to /login
+        // when it detects the user is null
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Failed to logout");
     }
   };
 

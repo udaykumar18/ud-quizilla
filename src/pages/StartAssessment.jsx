@@ -1,31 +1,60 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { toast } from "react-hot-toast";
 
 const StartAssessment = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const attemptId = searchParams.get("attempt_id");
+  const { user, role, authReady } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [attemptId, setAttemptId] = useState(null);
 
-  // Debug logging
+  // Store attempt_id when component mounts
   useEffect(() => {
-    console.log("StartAssessment → Full URL:", window.location.href);
-    console.log("StartAssessment → Search params:", window.location.search);
-    console.log("StartAssessment → attemptId from useSearchParams:", attemptId);
-    console.log(
-      "StartAssessment → All search params:",
-      Object.fromEntries(searchParams)
-    );
-  }, [searchParams, attemptId]);
+    const urlAttemptId = searchParams.get("attempt_id");
+    const storedAttemptId = localStorage.getItem("current_attempt_id");
+
+    console.log("StartAssessment → URL attempt_id:", urlAttemptId);
+    console.log("StartAssessment → Stored attempt_id:", storedAttemptId);
+
+    if (urlAttemptId) {
+      // Store the attempt_id from URL
+      localStorage.setItem("current_attempt_id", urlAttemptId);
+      setAttemptId(urlAttemptId);
+      console.log("StartAssessment → Stored attempt_id:", urlAttemptId);
+    } else if (storedAttemptId) {
+      // Use stored attempt_id
+      setAttemptId(storedAttemptId);
+      console.log(
+        "StartAssessment → Using stored attempt_id:",
+        storedAttemptId
+      );
+    }
+  }, [searchParams]);
+
+  const handleLoginRedirect = () => {
+    // Store current attempt_id before redirecting to login
+    if (attemptId) {
+      localStorage.setItem("current_attempt_id", attemptId);
+      localStorage.setItem("redirectAfterLogin", "/start-assessment");
+    }
+    navigate("/login");
+  };
 
   const handleStart = async () => {
     if (!attemptId) {
-      console.error("❌ No attempt_id found in URL");
-      setError("Missing attempt ID in URL");
+      console.error("❌ No attempt_id found");
+      setError("Missing attempt ID");
+      return;
+    }
+
+    if (!user || role !== "candidate") {
+      console.error("❌ User not logged in as candidate");
+      setError("Please login as a candidate first");
       return;
     }
 
@@ -41,6 +70,9 @@ const StartAssessment = () => {
 
       console.log("✅ Start Assessment Response:", response);
 
+      // Clear stored attempt_id after successful start
+      localStorage.removeItem("current_attempt_id");
+
       toast.success("Assessment started!");
       navigate(`/take-assessment?attempt_id=${attemptId}`);
     } catch (err) {
@@ -53,11 +85,15 @@ const StartAssessment = () => {
     }
   };
 
+  if (!authReady) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Welcome to Quizilla!</h1>
 
-      {/* Debug info */}
+      {/* Debug info - remove in production */}
       <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
         <p>
           <strong>Debug Info:</strong>
@@ -65,25 +101,42 @@ const StartAssessment = () => {
         <p>Full URL: {window.location.href}</p>
         <p>Search: {window.location.search}</p>
         <p>Attempt ID: {attemptId || "NOT FOUND"}</p>
+        <p>User: {user ? user.email : "Not logged in"}</p>
+        <p>Role: {role || "No role"}</p>
       </div>
 
       {attemptId ? (
         <>
           <p className="mb-4 text-gray-700">
-            You've been invited to take an assessment. Click below when you're
-            ready to begin.
+            You've been invited to take an assessment.
           </p>
           <p className="mb-4 text-sm text-gray-500">
             Assessment ID: {attemptId}
           </p>
 
-          <button
-            onClick={handleStart}
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-          >
-            {loading ? "Starting..." : "Start Assessment"}
-          </button>
+          {user && role === "candidate" ? (
+            // User is logged in as candidate - show start button
+            <button
+              onClick={handleStart}
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+            >
+              {loading ? "Starting..." : "Start Assessment"}
+            </button>
+          ) : (
+            // User not logged in or wrong role - show login button
+            <div>
+              <p className="mb-4 text-amber-600 font-medium">
+                Please login as a candidate to start your assessment.
+              </p>
+              <button
+                onClick={handleLoginRedirect}
+                className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+              >
+                Login as Candidate
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <p className="text-red-600 font-medium">

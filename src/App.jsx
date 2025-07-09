@@ -125,15 +125,6 @@ const PrivateRoutes = () => {
             />
           }
         />
-        <Route
-          path="/start-assessment"
-          element={
-            <ProtectedRoute
-              allowedRoles={["candidate"]}
-              element={<StartAssessment />}
-            />
-          }
-        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
@@ -147,6 +138,8 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          {/* Make start-assessment public - no authentication required */}
+          <Route path="/start-assessment" element={<StartAssessment />} />
           <Route path="/*" element={<PrivateRoutes />} />
         </Routes>
       </AuthProvider>

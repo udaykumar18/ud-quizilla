@@ -80,6 +80,17 @@ const AuthCallback = () => {
         console.log("AuthCallback → Found redirect path:", redirectPath);
         localStorage.removeItem("redirectAfterLogin");
         sessionStorage.removeItem("redirectAfterLogin");
+
+        // If redirecting to start-assessment, add the stored attempt_id to URL
+        if (redirectPath === "/start-assessment") {
+          const storedAttemptId = localStorage.getItem("current_attempt_id");
+          if (storedAttemptId) {
+            const finalPath = `/start-assessment?attempt_id=${storedAttemptId}`;
+            console.log("AuthCallback → Navigating to:", finalPath);
+            return navigate(finalPath);
+          }
+        }
+
         console.log("AuthCallback → Navigating to:", redirectPath);
         return navigate(redirectPath);
       }

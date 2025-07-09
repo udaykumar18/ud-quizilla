@@ -11,6 +11,17 @@ const StartAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Debug logging
+  useEffect(() => {
+    console.log("StartAssessment → Full URL:", window.location.href);
+    console.log("StartAssessment → Search params:", window.location.search);
+    console.log("StartAssessment → attemptId from useSearchParams:", attemptId);
+    console.log(
+      "StartAssessment → All search params:",
+      Object.fromEntries(searchParams)
+    );
+  }, [searchParams, attemptId]);
+
   const handleStart = async () => {
     if (!attemptId) {
       console.error("❌ No attempt_id found in URL");
@@ -45,11 +56,25 @@ const StartAssessment = () => {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Welcome to Quizilla!</h1>
+
+      {/* Debug info */}
+      <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+        <p>
+          <strong>Debug Info:</strong>
+        </p>
+        <p>Full URL: {window.location.href}</p>
+        <p>Search: {window.location.search}</p>
+        <p>Attempt ID: {attemptId || "NOT FOUND"}</p>
+      </div>
+
       {attemptId ? (
         <>
           <p className="mb-4 text-gray-700">
-            You’ve been invited to take an assessment. Click below when you’re
+            You've been invited to take an assessment. Click below when you're
             ready to begin.
+          </p>
+          <p className="mb-4 text-sm text-gray-500">
+            Assessment ID: {attemptId}
           </p>
 
           <button

@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
             localStorage.removeItem("redirectAfterLogin");
-            +window.location.replace(redirectPath); // redirect with full path/query
+            window.location.replace(redirectPath); // redirect with full path/query
           }
         }
       }

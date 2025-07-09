@@ -23,9 +23,10 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
 
   if (!user || !role) {
     // storing candidate email path
+    const currentUrl = new URL(window.location.href);
     localStorage.setItem(
       "redirectAfterLogin",
-      location.pathname + location.search
+      currentUrl.pathname + currentUrl.search
     );
     return <Navigate to="/login" replace />;
   }

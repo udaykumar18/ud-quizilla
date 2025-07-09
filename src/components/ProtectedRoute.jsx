@@ -5,7 +5,6 @@ import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
   const { user, role, authReady } = useAuth();
-
   const location = useLocation();
 
   console.log(
@@ -22,13 +21,14 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   }
 
   if (!user || !role) {
-    // storing candidate email path
-    const currentUrl = new URL(window.location.href);
-    localStorage.setItem(
-      "redirectAfterLogin",
-      currentUrl.pathname + currentUrl.search
+    // Store the current location (including query params) for redirect after login
+    const redirectPath = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(redirectPath)}`}
+        replace
+      />
     );
-    return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(role)) {
@@ -41,5 +41,3 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
 
   return element;
 };
-
-export default ProtectedRoute;

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
-  const { refreshUserRole } = useAuth(); // Add this line
+  const { refreshUserRole } = useAuth();
 
   useEffect(() => {
     const handleAuth = async () => {
@@ -64,17 +64,27 @@ const AuthCallback = () => {
           return navigate("/login");
         }
 
-        // Add this: Refresh the role in AuthContext after inserting new user
+        // Refresh the role in AuthContext after inserting new user
         await refreshUserRole();
       }
 
+      // Clean up localStorage
       localStorage.removeItem("selectedRole");
 
+      // Check if there's a redirect path stored (for assessment links)
+      const redirectPath = localStorage.getItem("redirectAfterLogin");
+      if (redirectPath) {
+        localStorage.removeItem("redirectAfterLogin");
+        console.log("AuthCallback → Redirecting to stored path:", redirectPath);
+        return navigate(redirectPath);
+      }
+
+      // Default navigation based on role
       navigate(selectedRole === "admin" ? "/" : "/start-assessment");
     };
 
     handleAuth();
-  }, [navigate, refreshUserRole]); // Add refreshUserRole to dependencies
+  }, [navigate, refreshUserRole]);
 
   return <div className="p-8 text-center">Signing you in...</div>;
 };

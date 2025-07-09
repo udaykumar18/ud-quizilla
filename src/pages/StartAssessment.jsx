@@ -4,6 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { toast } from "react-hot-toast";
 
+import { useAssessment } from "../context/AssessmentContext";
+
+const {
+  setAttemptId: setCtxAttemptId,
+  setAssessmentData,
+  setCurrentSetIndex,
+  setCurrentQuestionIndex,
+} = useAssessment();
+
 const StartAssessment = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -70,11 +79,17 @@ const StartAssessment = () => {
 
       console.log("✅ Start Assessment Response:", response);
 
+      // 🔁 Store in context
+      setCtxAttemptId(attemptId);
+      setAssessmentData(response.data); // response.data has set_ids & question_ids
+      setCurrentSetIndex(0);
+      setCurrentQuestionIndex(0);
+
       // Clear stored attempt_id after successful start
       localStorage.removeItem("current_attempt_id");
 
       toast.success("Assessment started!");
-      navigate(`/take-assessment?attempt_id=${attemptId}`);
+      navigate("/instructions");
     } catch (err) {
       console.error("❌ Error in startAssessment:", err);
       setError(

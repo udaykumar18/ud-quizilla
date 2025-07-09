@@ -6,17 +6,17 @@ import { toast } from "react-hot-toast";
 
 import { useAssessment } from "../context/AssessmentContext";
 
-const {
-  setAttemptId: setCtxAttemptId,
-  setAssessmentData,
-  setCurrentSetIndex,
-  setCurrentQuestionIndex,
-} = useAssessment();
-
 const StartAssessment = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, role, authReady } = useAuth();
+
+  const {
+    setAttemptId: setCtxAttemptId,
+    setAssessmentData,
+    setCurrentSetIndex,
+    setCurrentQuestionIndex,
+  } = useAssessment();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

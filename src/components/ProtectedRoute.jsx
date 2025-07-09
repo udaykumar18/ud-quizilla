@@ -1,10 +1,12 @@
 // src/components/ProtectedRoute.jsx
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ element, allowedRoles }) => {
   const { user, role, authReady } = useAuth();
+
+  const location = useLocation();
 
   console.log(
     "ProtectedRoute → user:",
@@ -20,6 +22,11 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   }
 
   if (!user || !role) {
+    // storing candidate email path
+    localStorage.setItem(
+      "redirectAfterLogin",
+      location.pathname + location.search
+    );
     return <Navigate to="/login" replace />;
   }
 

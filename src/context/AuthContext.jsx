@@ -74,6 +74,12 @@ export const AuthProvider = ({ children }) => {
 
         if (event === "SIGNED_IN") {
           await loadUserAndRole();
+
+          const redirectPath = localStorage.getItem("redirectAfterLogin");
+          if (redirectPath) {
+            localStorage.removeItem("redirectAfterLogin");
+            +window.location.replace(redirectPath); // redirect with full path/query
+          }
         }
       }
     );

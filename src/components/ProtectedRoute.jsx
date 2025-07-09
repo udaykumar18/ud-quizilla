@@ -23,6 +23,12 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   if (!user || !role) {
     // Store the current location (including query params) for redirect after login
     const redirectPath = `${location.pathname}${location.search}`;
+    console.log("ProtectedRoute → Storing redirect path:", redirectPath);
+
+    // Store in both localStorage and sessionStorage for reliability
+    localStorage.setItem("redirectAfterLogin", redirectPath);
+    sessionStorage.setItem("redirectAfterLogin", redirectPath);
+
     return (
       <Navigate
         to={`/login?redirect=${encodeURIComponent(redirectPath)}`}

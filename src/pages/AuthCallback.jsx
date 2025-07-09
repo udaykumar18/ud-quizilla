@@ -72,10 +72,15 @@ const AuthCallback = () => {
       localStorage.removeItem("selectedRole");
 
       // Check if there's a redirect path stored (for assessment links)
-      const redirectPath = localStorage.getItem("redirectAfterLogin");
+      const redirectPath =
+        localStorage.getItem("redirectAfterLogin") ||
+        sessionStorage.getItem("redirectAfterLogin");
+
       if (redirectPath) {
+        console.log("AuthCallback → Found redirect path:", redirectPath);
         localStorage.removeItem("redirectAfterLogin");
-        console.log("AuthCallback → Redirecting to stored path:", redirectPath);
+        sessionStorage.removeItem("redirectAfterLogin");
+        console.log("AuthCallback → Navigating to:", redirectPath);
         return navigate(redirectPath);
       }
 

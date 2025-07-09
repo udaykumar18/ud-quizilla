@@ -11,9 +11,18 @@ const Login = () => {
     // Save selected role before redirecting to Google OAuth
     localStorage.setItem("selectedRole", selectedRole);
 
-    // Store redirect path if it exists
-    if (redirectPath) {
-      localStorage.setItem("redirectAfterLogin", redirectPath);
+    // Store redirect path if it exists (from URL param or already stored)
+    const redirectFromUrl = redirectPath;
+    const redirectFromStorage =
+      localStorage.getItem("redirectAfterLogin") ||
+      sessionStorage.getItem("redirectAfterLogin");
+
+    const finalRedirect = redirectFromUrl || redirectFromStorage;
+
+    if (finalRedirect) {
+      console.log("Login → Storing redirect path:", finalRedirect);
+      localStorage.setItem("redirectAfterLogin", finalRedirect);
+      sessionStorage.setItem("redirectAfterLogin", finalRedirect);
     }
 
     await supabase.auth.signInWithOAuth({

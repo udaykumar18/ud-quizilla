@@ -118,14 +118,11 @@ const api = {
   startAssessment: async (payload) => {
     console.log("[API] POST /start-assessments", payload);
 
-    const response = await fetch(
-      "https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev/start-assessments",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${API_BASE}/start-assessments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const json = await response.json();
 

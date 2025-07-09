@@ -118,7 +118,7 @@ const api = {
   startAssessment: async (payload) => {
     console.log("[API] POST /start-assessments", payload);
 
-    const response = await fetch(`${API_BASE}/start-assessments`, {
+    const response = await fetch(`${API_BASE}/start-assessment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

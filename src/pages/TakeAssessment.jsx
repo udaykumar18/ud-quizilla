@@ -48,7 +48,7 @@ const TakeAssessment = () => {
       }
 
       if (isLastQuestion()) {
-        payload.isLast = true;
+        payload.is_last_question = true;
       }
 
       const res = await api.questionFlow(payload);

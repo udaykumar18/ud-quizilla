@@ -28,6 +28,8 @@ export const AuthProvider = ({ children }) => {
       .eq("id", user.id)
       .maybeSingle();
 
+    console.log("loadUserAndRole → userData:", userData, "error:", error);
+
     setUser(user);
     setRole(userData?.role || null);
     setAuthReady(true);

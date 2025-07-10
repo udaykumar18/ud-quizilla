@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAssessment } from "../context/AssessmentContext";
+import api from "../services/api";
 import { toast } from "react-hot-toast";
 
 const Instructions = () => {
@@ -9,16 +10,28 @@ const Instructions = () => {
     useAssessment();
 
   const handleStartTest = async () => {
-    console.log("Starting test with:");
-    console.log("✅ attemptId:", attemptId);
-    console.log("✅ currentSetIndex:", currentSetIndex);
-    console.log("✅ currentQuestionIndex:", currentQuestionIndex);
-    console.log("✅ assessmentData:", assessmentData);
+    try {
+      const currentSet = assessmentData.set_ids[currentSetIndex];
+      const setId = currentSet.set_id;
+      const questionId = currentSet.question_ids[currentQuestionIndex];
 
-    toast.success("Test flow coming soon!");
-    // For now, just navigate to a placeholder
-    // Later we replace this with /question-flow call
-    navigate("/take-assessment");
+      console.log("➡️ Starting test with:");
+      console.log("Attempt ID:", attemptId);
+      console.log("Set ID:", setId);
+      console.log("Question ID:", questionId);
+
+      const res = await api.questionFlow({
+        attempt_id: attemptId,
+        set_id: setId,
+        question_id: questionId,
+      });
+
+      toast.success("Good luck!");
+      navigate("/take-assessment", { state: { currentQuestion: res.data } });
+    } catch (err) {
+      console.error("❌ Failed to fetch first question:", err);
+      toast.error("Unable to start test. Try again.");
+    }
   };
 
   return (

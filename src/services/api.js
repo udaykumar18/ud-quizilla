@@ -134,6 +134,20 @@ const api = {
 
     return json;
   },
+
+  questionFlow: async (body) => {
+    const response = await fetch(`${API_BASE}/question-flow`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch next question");
+    }
+
+    return await response.json();
+  },
 };
 
 export default api;

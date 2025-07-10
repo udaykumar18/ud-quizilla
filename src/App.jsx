@@ -25,6 +25,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Instructions from "./pages/Instructions";
+import TakeAssessment from "./pages/TakeAssessment";
 import { AssessmentProvider } from "./context/AssessmentContext";
 
 const AppLayout = ({ children }) => {
@@ -145,6 +146,7 @@ const App = () => {
             {/* Make start-assessment public - no authentication required */}
             <Route path="/start-assessment" element={<StartAssessment />} />
             <Route path="/instructions" element={<Instructions />} />
+            <Route path="/take-assessment" element={<TakeAssessment />} />
             <Route path="/*" element={<PrivateRoutes />} />
           </Routes>
         </AssessmentProvider>

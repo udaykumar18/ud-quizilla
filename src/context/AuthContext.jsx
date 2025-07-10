@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { supabase } from "../utils/supabaseClient";
 
 const AuthContext = createContext(null);
@@ -7,9 +7,16 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  const loadingRef = useRef(false); // Prevent multiple simultaneous calls
 
-  // Remove useCallback and define as a regular async function
   const loadUserAndRole = async () => {
+    // Prevent multiple simultaneous calls
+    if (loadingRef.current) {
+      console.log("🔁 loadUserAndRole already in progress, skipping");
+      return;
+    }
+
+    loadingRef.current = true;
     console.log("🔁 loadUserAndRole called");
     
     try {
@@ -17,8 +24,8 @@ export const AuthProvider = ({ children }) => {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser();
+      
       console.log("🔐 Supabase data:", user, authError);
-
       console.log("✅ supabase.auth.getUser →", user);
 
       if (!user || authError) {
@@ -47,16 +54,20 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setRole(null);
       setAuthReady(true);
+    } finally {
+      loadingRef.current = false;
     }
   };
 
   useEffect(() => {
     console.log("🔄 AuthContext useEffect running");
+    
+    // Initial load
     loadUserAndRole();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("🧭 Auth event:", event);
+        console.log("🧭 Auth event:", event, "Session:", !!session);
 
         if (event === "SIGNED_OUT") {
           setUser(null);
@@ -65,25 +76,34 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        if (event === "SIGNED_IN") {
+        // Only handle these specific events to avoid infinite loops
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          console.log("🔄 Handling auth event:", event);
           await loadUserAndRole();
-          const redirectPath = localStorage.getItem("redirectAfterLogin");
-          if (redirectPath) {
-            localStorage.removeItem("redirectAfterLogin");
-            window.location.replace(redirectPath);
+          
+          // Handle redirect only for SIGNED_IN
+          if (event === "SIGNED_IN") {
+            const redirectPath = localStorage.getItem("redirectAfterLogin");
+            if (redirectPath) {
+              localStorage.removeItem("redirectAfterLogin");
+              window.location.replace(redirectPath);
+            }
           }
         }
 
-        // Handle initial session and token refresh
-        if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
-          console.log("🔄 Initial session or token refreshed");
+        // For INITIAL_SESSION, only load if we don't have a user yet
+        if (event === "INITIAL_SESSION" && !user) {
+          console.log("🔄 Initial session - loading user");
           await loadUserAndRole();
         }
       }
     );
 
-    return () => listener.subscription.unsubscribe();
-  }, []);
+    return () => {
+      console.log("🧹 Cleaning up auth listener");
+      listener.subscription.unsubscribe();
+    };
+  }, []); // Remove user dependency to prevent infinite loops
 
   const value = {
     user,

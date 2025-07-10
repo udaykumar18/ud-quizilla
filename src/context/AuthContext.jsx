@@ -8,76 +8,42 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
+  // TODO: For best robustness, consider migrating to Supabase Auth Helpers for React:
+  // https://supabase.com/docs/guides/auth/auth-helpers/react
+
   const loadUserAndRole = async () => {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    console.log("🔐 Supabase user:", user);
-
-    if (!user || authError) {
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log("🔐 Supabase user:", user);
+      if (!user || authError) {
+        setUser(null);
+        setRole(null);
+        setAuthReady(true);
+        console.log("⚠️ No user or auth error:", authError);
+        return;
+      }
+      const { data: userData, error } = await supabase
+        .schema("quizilla")
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      console.log("📥 Role fetched:", userData?.role);
+      console.log("⚠️ Supabase role fetch error:", error);
+      setUser(user);
+      setRole(userData?.role || null);
+      setAuthReady(true);
+    } catch (e) {
       setUser(null);
       setRole(null);
       setAuthReady(true);
-      console.log("⚠️ No user or auth error:", authError);
-      return;
-    }
-
-    const { data: userData, error } = await supabase
-      .schema("quizilla")
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    console.log("📥 Role fetched:", userData?.role);
-    console.log("⚠️ Supabase role fetch error:", error);
-
-    setUser(user);
-    setRole(userData?.role || null); // even if role is null
-    setAuthReady(true); // ALWAYS run this
-  };
-
-  // Add this function to manually refresh role
-  const refreshUserRole = async () => {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (!user || authError) {
-      setUser(null);
-      setRole(null);
-      return;
-    }
-
-    const { data: userData, error } = await supabase
-      .schema("quizilla")
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (!error && userData) {
-      setRole(userData.role);
+      console.error("AuthContext → loadUserAndRole error:", e);
     }
   };
 
   useEffect(() => {
     console.log("AuthContext useEffect → running");
-    // Ensure Supabase session restoration before checking user
-    const restoreSessionAndLoadUser = async () => {
-      try {
-        const sessionResult = await supabase.auth.getSession();
-        console.log("restoreSessionAndLoadUser → sessionResult:", sessionResult);
-        await loadUserAndRole();
-      } catch (e) {
-        console.error("restoreSessionAndLoadUser → error:", e);
-      }
-    };
-    restoreSessionAndLoadUser();
-
+    loadUserAndRole();
     // Listen to auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -87,10 +53,8 @@ export const AuthProvider = ({ children }) => {
           setAuthReady(true);
           return;
         }
-
         if (event === "SIGNED_IN") {
           await loadUserAndRole();
-
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
             localStorage.removeItem("redirectAfterLogin");
@@ -99,12 +63,11 @@ export const AuthProvider = ({ children }) => {
         }
       }
     );
-
     return () => listener.subscription.unsubscribe();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, role, authReady, refreshUserRole }}>
+    <AuthContext.Provider value={{ user, role, authReady, refreshUserRole: loadUserAndRole }}>
       {children}
     </AuthContext.Provider>
   );

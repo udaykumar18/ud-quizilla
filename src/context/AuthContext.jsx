@@ -52,7 +52,8 @@ export const AuthProvider = ({ children }) => {
           setRole(null);
           setAuthReady(true);
           return;
-        }else {
+        }
+        if (event === "SIGNED_IN") {
           await loadUserAndRole();
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
@@ -64,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     );
     console.log("AuthContext useEffect → running",data);
     return () => {
-
+      
       listener.subscription.unsubscribe();
     }
     

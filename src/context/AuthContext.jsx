@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
-import { data } from "react-router";
 
 const AuthContext = createContext(null);
 
@@ -9,68 +8,83 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
- 
-
   const loadUserAndRole = async () => {
-    console.log("loadUserAndRole called");
+    console.log("🔁 loadUserAndRole called");
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.log("Result from supabase.auth.getUser():", user, authError);
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      console.log("✅ supabase.auth.getUser →", user);
+
       if (!user || authError) {
+        console.warn("⚠️ No user or auth error:", authError);
         setUser(null);
         setRole(null);
         setAuthReady(true);
-        console.log("⚠️ No user or auth error:", authError);
         return;
       }
+
       const { data: userData, error } = await supabase
         .schema("quizilla")
         .from("users")
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
+
       console.log("📥 Role fetched:", userData?.role);
-      console.log("⚠️ Supabase role fetch error:", error);
+      if (error) console.error("❌ Role fetch error:", error);
+
       setUser(user);
       setRole(userData?.role || null);
       setAuthReady(true);
     } catch (e) {
+      console.error("❌ loadUserAndRole exception:", e);
       setUser(null);
       setRole(null);
       setAuthReady(true);
-      console.error("AuthContext → loadUserAndRole error:", e);
     }
   };
 
   useEffect(() => {
-    console.log("AuthContext useEffect → running");
+    console.log("🔄 AuthContext useEffect running");
     loadUserAndRole();
-    // Listen to auth changes
+
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("🧭 Auth event:", event);
+
         if (event === "SIGNED_OUT") {
           setUser(null);
           setRole(null);
           setAuthReady(true);
           return;
         }
+
         if (event === "SIGNED_IN") {
           await loadUserAndRole();
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
             localStorage.removeItem("redirectAfterLogin");
-            window.location.replace(redirectPath); // redirect with full path/query
+            window.location.replace(redirectPath);
           }
         }
       }
     );
-    console.log("AuthContext useEffect → running",data);
+
     return () => listener.subscription.unsubscribe();
-    
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, role, authReady, refreshUserRole: loadUserAndRole }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        role,
+        authReady,
+        refreshUserRole: loadUserAndRole,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

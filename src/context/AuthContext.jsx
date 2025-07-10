@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser();
-      console.log("🔐 Supabase data:", data, error);
+      console.log("🔐 Supabase data:", user, authError);
 
       console.log("✅ supabase.auth.getUser →", user);
 

@@ -2,6 +2,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// Test
+
 const StatsCard = ({ title, count, icon: Icon, color, linkTo }) => {
   const CardContent = () => (
     <div className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow">

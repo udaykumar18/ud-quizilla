@@ -59,8 +59,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Initial load
-    loadUserAndRole();
+    // Ensure Supabase session restoration before checking user
+    const restoreSessionAndLoadUser = async () => {
+      // Wait for Supabase to restore session
+      await supabase.auth.getSession();
+      await loadUserAndRole();
+    };
+    restoreSessionAndLoadUser();
 
     // Listen to auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(

@@ -7,17 +7,17 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
-  // const loadingRef = useRef(false);
+  const loadingRef = useRef(false); // Prevent multiple simultaneous calls
 
   const loadUserAndRole = async () => {
     // Prevent multiple simultaneous calls
-    // if (loadingRef.current) {
-    //   console.log("🔁 loadUserAndRole already in progress, skipping");
-    //   return;
-    // }
+    if (loadingRef.current) {
+      console.log("🔁 loadUserAndRole already in progress, skipping");
+      return;
+    }
 
-    // loadingRef.current = true;
-    // console.log("🔁 loadUserAndRole called");
+    loadingRef.current = true;
+    console.log("🔁 loadUserAndRole called");
     
     try {
       const {
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
       setRole(null);
       setAuthReady(true);
     } finally {
-      // loadingRef.current = false;
+      loadingRef.current = false;
     }
   };
 

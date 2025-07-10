@@ -12,9 +12,10 @@ export const AuthProvider = ({ children }) => {
  
 
   const loadUserAndRole = async () => {
+    console.log("loadUserAndRole called");
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.log("🔐 Supabase user:", user);
+      console.log("Result from supabase.auth.getUser():", user, authError);
       if (!user || authError) {
         setUser(null);
         setRole(null);
@@ -64,10 +65,7 @@ export const AuthProvider = ({ children }) => {
       }
     );
     console.log("AuthContext useEffect → running",data);
-    return () => {
-      
-      listener.subscription.unsubscribe();
-    }
+    return () => listener.subscription.unsubscribe();
     
   }, []);
 

@@ -65,12 +65,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log("AuthContext useEffect → running");
     // Ensure Supabase session restoration before checking user
     const restoreSessionAndLoadUser = async () => {
-      // Wait for Supabase to restore session
-      const sessionResult = await supabase.auth.getSession();
-      console.log("restoreSessionAndLoadUser → sessionResult:", sessionResult);
-      await loadUserAndRole();
+      try {
+        const sessionResult = await supabase.auth.getSession();
+        console.log("restoreSessionAndLoadUser → sessionResult:", sessionResult);
+        await loadUserAndRole();
+      } catch (e) {
+        console.error("restoreSessionAndLoadUser → error:", e);
+      }
     };
     restoreSessionAndLoadUser();
 

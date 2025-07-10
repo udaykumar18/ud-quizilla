@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import { data } from "react-router";
 
 const AuthContext = createContext(null);
 
@@ -8,8 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
-  // TODO: For best robustness, consider migrating to Supabase Auth Helpers for React:
-  // https://supabase.com/docs/guides/auth/auth-helpers/react
+ 
 
   const loadUserAndRole = async () => {
     try {
@@ -52,8 +52,7 @@ export const AuthProvider = ({ children }) => {
           setRole(null);
           setAuthReady(true);
           return;
-        }
-        if (event === "SIGNED_IN") {
+        }else {
           await loadUserAndRole();
           const redirectPath = localStorage.getItem("redirectAfterLogin");
           if (redirectPath) {
@@ -63,7 +62,12 @@ export const AuthProvider = ({ children }) => {
         }
       }
     );
-    return () => listener.subscription.unsubscribe();
+    console.log("AuthContext useEffect → running",data);
+    return () => {
+
+      listener.subscription.unsubscribe();
+    }
+    
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { supabase } from "../utils/supabaseClient";
 
 const AuthContext = createContext(null);
@@ -8,8 +8,9 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
-  const loadUserAndRole = async () => {
+  const loadUserAndRole = useCallback(async () => {
     console.log("🔁 loadUserAndRole called");
+    
     try {
       const {
         data: { user },
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }) => {
       setRole(null);
       setAuthReady(true);
     }
-  };
+  }, []);
 
   useEffect(() => {
     console.log("🔄 AuthContext useEffect running");
@@ -70,24 +71,36 @@ export const AuthProvider = ({ children }) => {
             window.location.replace(redirectPath);
           }
         }
+
+        // Handle initial session and token refresh
+        if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") {
+          console.log("🔄 Initial session or token refreshed");
+          await loadUserAndRole();
+        }
       }
     );
 
     return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [loadUserAndRole]);
+
+  const value = {
+    user,
+    role,
+    authReady,
+    refreshUserRole: loadUserAndRole,
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        role,
-        authReady,
-        refreshUserRole: loadUserAndRole,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

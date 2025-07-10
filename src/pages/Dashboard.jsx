@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Plus, BookOpen, FileText } from "lucide-react";
 import StatsCard from "../components/StatsCard";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -13,6 +14,9 @@ const Dashboard = () => {
   useEffect(() => {
     fetchStats();
   }, []);
+
+  const { user, role, authReady } = useAuth();
+  console.log("Admin Dashboard - Auth State:", { user: !!user, role, authReady });
 
   const fetchStats = async () => {
     try {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 
 const AuthContext = createContext(null);
@@ -8,7 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
-  const loadUserAndRole = useCallback(async () => {
+  // Remove useCallback and define as a regular async function
+  const loadUserAndRole = async () => {
     console.log("🔁 loadUserAndRole called");
     
     try {
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       setRole(null);
       setAuthReady(true);
     }
-  }, []);
+  };
 
   useEffect(() => {
     console.log("🔄 AuthContext useEffect running");

@@ -9,19 +9,18 @@ export const AuthProvider = ({ children }) => {
   const [authReady, setAuthReady] = useState(false);
 
   const loadUserAndRole = async () => {
-    console.log("loadUserAndRole → called");
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
-    console.log("loadUserAndRole → user:", user, "authError:", authError);
+    console.log("🔐 Supabase user:", user);
 
     if (!user || authError) {
       setUser(null);
       setRole(null);
       setAuthReady(true);
-      console.log("loadUserAndRole → no user or authError, exiting");
+      console.log("⚠️ No user or auth error:", authError);
       return;
     }
 
@@ -32,11 +31,12 @@ export const AuthProvider = ({ children }) => {
       .eq("id", user.id)
       .maybeSingle();
 
-    console.log("loadUserAndRole → userData:", userData, "error:", error);
+    console.log("📥 Role fetched:", userData?.role);
+    console.log("⚠️ Supabase role fetch error:", error);
 
     setUser(user);
-    setRole(userData?.role || null);
-    setAuthReady(true);
+    setRole(userData?.role || null); // even if role is null
+    setAuthReady(true); // ALWAYS run this
   };
 
   // Add this function to manually refresh role

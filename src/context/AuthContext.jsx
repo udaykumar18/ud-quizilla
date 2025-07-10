@@ -9,15 +9,19 @@ export const AuthProvider = ({ children }) => {
   const [authReady, setAuthReady] = useState(false);
 
   const loadUserAndRole = async () => {
+    console.log("loadUserAndRole → called");
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
+    console.log("loadUserAndRole → user:", user, "authError:", authError);
+
     if (!user || authError) {
       setUser(null);
       setRole(null);
       setAuthReady(true);
+      console.log("loadUserAndRole → no user or authError, exiting");
       return;
     }
 
@@ -27,6 +31,8 @@ export const AuthProvider = ({ children }) => {
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
+
+    console.log("loadUserAndRole → userData:", userData, "error:", error);
 
     setUser(user);
     setRole(userData?.role || null);
@@ -59,8 +65,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Initial load
-    loadUserAndRole();
+    // Ensure Supabase session restoration before checking user
+    const restoreSessionAndLoadUser = async () => {
+      // Wait for Supabase to restore session
+      await supabase.auth.getSession();
+      await loadUserAndRole();
+    };
+    restoreSessionAndLoadUser();
 
     // Listen to auth changes
     const { data: listener } = supabase.auth.onAuthStateChange(

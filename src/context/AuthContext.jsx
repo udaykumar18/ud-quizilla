@@ -68,7 +68,8 @@ export const AuthProvider = ({ children }) => {
     // Ensure Supabase session restoration before checking user
     const restoreSessionAndLoadUser = async () => {
       // Wait for Supabase to restore session
-      await supabase.auth.getSession();
+      const sessionResult = await supabase.auth.getSession();
+      console.log("restoreSessionAndLoadUser → sessionResult:", sessionResult);
       await loadUserAndRole();
     };
     restoreSessionAndLoadUser();

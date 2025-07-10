@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
     );
 
     return () => listener.subscription.unsubscribe();
-  }, [loadUserAndRole]);
+  }, []);
 
   const value = {
     user,

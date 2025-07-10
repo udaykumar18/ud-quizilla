@@ -42,7 +42,7 @@ const AppLayout = ({ children }) => {
 
 const PrivateRoutes = () => {
   const { user, authReady } = useAuth();
-
+  console.log("Auth Ready:", authReady);
   if (!authReady) {
     return <div className="p-8 text-center">Loading...</div>;
   }

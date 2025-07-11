@@ -32,10 +32,12 @@ const TakeAssessment = () => {
   const fetchQuestion = async (prevAnswer = null) => {
     try {
       setLoading(true);
+
       const payload = {
         attempt_id: attemptId,
         set_id: currentSet.set_id,
         question_id: questionId,
+        is_last_question: isLastQuestion(), // Always include it
       };
 
       if (prevAnswer) {
@@ -45,10 +47,6 @@ const TakeAssessment = () => {
           question_id: prevAnswer.question_id,
           optedAnswer: prevAnswer.optedAnswer,
         };
-      }
-
-      if (isLastQuestion()) {
-        payload.is_last_question = true;
       }
 
       const res = await api.questionFlow(payload);
@@ -78,7 +76,6 @@ const TakeAssessment = () => {
       optedAnswer: selectedOption,
     };
 
-    // Navigate to next question
     const isLastInSet =
       currentQuestionIndex === currentSet.question_ids.length - 1;
 
@@ -88,9 +85,8 @@ const TakeAssessment = () => {
       setCurrentSetIndex(currentSetIndex + 1);
       setCurrentQuestionIndex(0);
     } else {
-      // Last question: Show completion page or result
       toast.success("Assessment completed!");
-      navigate("/"); // You can replace with results page
+      navigate("/"); // Replace with result page if needed
       return;
     }
 
@@ -102,8 +98,23 @@ const TakeAssessment = () => {
     return <div className="p-8 text-center">Loading question...</div>;
   }
 
+  const totalSets = assessmentData?.set_ids.length || 0;
+  const totalQuestionsInSet = currentSet?.question_ids.length || 0;
+
   return (
     <div className="max-w-2xl mx-auto p-6">
+      {/* Display Set and Question Info */}
+      <div className="mb-4 text-sm text-gray-600">
+        <p>
+          <strong>Set:</strong> {currentSetIndex + 1}/{totalSets} &nbsp;
+          <strong>Set ID:</strong> {currentSet.set_id}
+        </p>
+        <p>
+          <strong>Question:</strong> {currentQuestionIndex + 1}/
+          {totalQuestionsInSet}
+        </p>
+      </div>
+
       <h2 className="text-xl font-semibold mb-4">Question</h2>
       <p className="mb-4">{questionData.question}</p>
       <div className="space-y-3">

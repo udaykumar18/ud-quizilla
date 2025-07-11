@@ -85,8 +85,10 @@ export const AuthProvider = ({ children }) => {
           if (event === "SIGNED_IN") {
             const redirectPath = localStorage.getItem("redirectAfterLogin");
             if (redirectPath) {
-              localStorage.removeItem("redirectAfterLogin");
-              window.location.replace(redirectPath);
+              console.log("AuthContext → Found redirect path:", redirectPath);
+              // Don't redirect here, let AuthCallback handle it
+              // localStorage.removeItem("redirectAfterLogin");
+              // window.location.replace(redirectPath);
             }
           }
         }

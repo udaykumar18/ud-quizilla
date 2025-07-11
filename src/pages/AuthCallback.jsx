@@ -88,6 +88,10 @@ const AuthCallback = () => {
             const finalPath = `/start-assessment?attempt_id=${storedAttemptId}`;
             console.log("AuthCallback → Navigating to:", finalPath);
             return navigate(finalPath);
+          } else {
+            // If no stored attempt_id, just navigate to start-assessment
+            console.log("AuthCallback → Navigating to start-assessment without attempt_id");
+            return navigate("/start-assessment");
           }
         }
 

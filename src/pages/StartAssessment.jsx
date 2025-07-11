@@ -50,6 +50,7 @@ const StartAssessment = () => {
     if (attemptId) {
       localStorage.setItem("current_attempt_id", attemptId);
       localStorage.setItem("redirectAfterLogin", "/start-assessment");
+      console.log("StartAssessment → Storing attempt_id for redirect:", attemptId);
     }
     navigate("/login");
   };

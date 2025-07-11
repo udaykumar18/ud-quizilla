@@ -209,7 +209,7 @@ const CreateAssessment = () => {
                           {set.difficulty}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {set.time_limit} min
+                          {set.question_count} questions • {set.time_limit} min
                         </span>
                       </div>
                     </div>

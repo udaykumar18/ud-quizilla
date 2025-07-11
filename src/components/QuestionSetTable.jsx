@@ -73,6 +73,9 @@ const QuestionSetTable = ({ questionSets, onDelete, onUpdated }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {set.time_limit} min
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {set.question_count} min
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <Link

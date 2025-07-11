@@ -44,6 +44,9 @@ const QuestionSetTable = ({ questionSets, onDelete, onUpdated }) => {
                 Time Limit
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Questions
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -74,7 +77,7 @@ const QuestionSetTable = ({ questionSets, onDelete, onUpdated }) => {
                   {set.time_limit} min
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {set.question_count} min
+                  {set.question_count} questions
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">

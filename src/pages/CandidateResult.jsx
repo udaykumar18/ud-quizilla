@@ -89,7 +89,7 @@ const CandidateResult = () => {
   const totalDuration = calculateDuration(result.start_time, result.end_time);
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 my-10">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
         <div className="flex justify-between items-start mb-4">

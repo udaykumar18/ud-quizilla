@@ -22,35 +22,55 @@ const TakeAssessment = () => {
   const currentSet = assessmentData?.set_ids[currentSetIndex];
   const questionId = currentSet?.question_ids[currentQuestionIndex];
 
-  const isLastQuestion = () => {
-    const isLastInSet =
-      currentQuestionIndex === currentSet.question_ids.length - 1;
-    const isLastSet = currentSetIndex === assessmentData.set_ids.length - 1;
-    return isLastInSet && isLastSet;
-  };
+  const isLastInSet =
+    currentQuestionIndex === currentSet?.question_ids.length - 1;
+  const isLastSet = currentSetIndex === assessmentData?.set_ids.length - 1;
+  const isLast = isLastInSet && isLastSet;
 
-  const fetchQuestion = async (prevAnswer = null) => {
+  const fetchQuestion = async (prevAnswer = null, isFinal = false) => {
     try {
       setLoading(true);
 
-      const payload = {
-        attempt_id: attemptId,
-        set_id: currentSet.set_id,
-        question_id: questionId,
-        is_last_question: isLastQuestion(), // Always include it
-      };
+      let payload;
 
-      if (prevAnswer) {
-        payload.previous = {
+      if (isFinal) {
+        // ✅ Final submission payload (only previous + is_last_question)
+        payload = {
+          previous: {
+            attempt_id: attemptId,
+            set_id: currentSet.set_id,
+            question_id: questionData.question_id,
+            optedAnswer: selectedOption,
+          },
+          is_last_question: true,
+        };
+      } else {
+        // ✅ Normal flow
+        payload = {
           attempt_id: attemptId,
           set_id: currentSet.set_id,
-          question_id: prevAnswer.question_id,
-          optedAnswer: prevAnswer.optedAnswer,
+          question_id: questionId,
+          is_last_question: isLast,
         };
+
+        if (prevAnswer) {
+          payload.previous = {
+            attempt_id: attemptId,
+            set_id: currentSet.set_id,
+            question_id: prevAnswer.question_id,
+            optedAnswer: prevAnswer.optedAnswer,
+          };
+        }
       }
 
       const res = await api.questionFlow(payload);
-      setQuestionData(res.data);
+
+      if (isFinal) {
+        toast.success("Assessment completed!");
+        navigate("/"); // You can redirect to results here
+      } else {
+        setQuestionData(res.data);
+      }
     } catch (err) {
       console.error("❌ Failed to fetch question:", err);
       toast.error("Failed to load question. Try again.");
@@ -63,6 +83,7 @@ const TakeAssessment = () => {
     if (attemptId && currentSet && questionId) {
       fetchQuestion(); // First load
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attemptId, currentSetIndex, currentQuestionIndex]);
 
   const handleNext = () => {
@@ -76,22 +97,22 @@ const TakeAssessment = () => {
       optedAnswer: selectedOption,
     };
 
-    const isLastInSet =
-      currentQuestionIndex === currentSet.question_ids.length - 1;
+    setSelectedOption(null); // Clear for next question
 
-    if (!isLastInSet) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else if (currentSetIndex < assessmentData.set_ids.length - 1) {
-      setCurrentSetIndex(currentSetIndex + 1);
-      setCurrentQuestionIndex(0);
-    } else {
-      toast.success("Assessment completed!");
-      navigate("/"); // Replace with result page if needed
+    if (isLast) {
+      // ✅ Final submission
+      fetchQuestion(prevAnswer, true);
       return;
     }
 
-    setSelectedOption(null);
-    fetchQuestion(prevAnswer);
+    if (!isLastInSet) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else if (!isLastSet) {
+      setCurrentSetIndex(currentSetIndex + 1);
+      setCurrentQuestionIndex(0);
+    }
+
+    fetchQuestion(prevAnswer); // Normal fetch
   };
 
   if (loading || !questionData) {
@@ -103,7 +124,6 @@ const TakeAssessment = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      {/* Display Set and Question Info */}
       <div className="mb-4 text-sm text-gray-600">
         <p>
           <strong>Set:</strong> {currentSetIndex + 1}/{totalSets} &nbsp;
@@ -137,7 +157,7 @@ const TakeAssessment = () => {
         onClick={handleNext}
         className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded"
       >
-        {isLastQuestion() ? "Submit" : "Next"}
+        {isLast ? "Submit" : "Next"}
       </button>
     </div>
   );

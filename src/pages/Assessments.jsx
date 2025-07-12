@@ -15,7 +15,6 @@ const Assessments = () => {
   const fetchAssessments = async () => {
     try {
       const data = await api.getAssessments();
-      console.log("GET /assessments response:", data);
       setAssessments(data.data.assessments || []);
     } catch (error) {
       console.error("Error fetching assessments:", error);

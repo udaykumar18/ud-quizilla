@@ -28,6 +28,52 @@ const TakeAssessment = () => {
   const isLastSet = currentSetIndex === assessmentData?.set_ids.length - 1;
   const isLast = isLastInSet && isLastSet;
 
+  const fetchNextQuestion = async (
+    prevAnswer,
+    nextSetIndex,
+    nextQuestionIndex
+  ) => {
+    try {
+      setLoading(true);
+
+      const nextSet = assessmentData?.set_ids[nextSetIndex];
+      const nextQuestionId = nextSet?.question_ids[nextQuestionIndex];
+
+      console.log("🎯 Fetching next question with:", {
+        nextSetIndex,
+        nextQuestionIndex,
+        nextSetId: nextSet?.set_id,
+        nextQuestionId,
+      });
+
+      const payload = {
+        attempt_id: attemptId,
+        set_id: nextSet.set_id,
+        question_id: nextQuestionId,
+        is_last_question: false,
+        previous: {
+          attempt_id: attemptId,
+          set_id: prevAnswer.set_id,
+          question_id: prevAnswer.question_id,
+          optedAnswer: prevAnswer.optedAnswer,
+        },
+      };
+
+      console.log("📤 Sending request:", payload);
+      const res = await api.questionFlow(payload);
+      console.log("📥 Full API response:", res);
+      console.log("📥 Received question data:", res.data);
+
+      setQuestionData(res.data);
+    } catch (err) {
+      console.error("❌ Failed to fetch next question:", err);
+      toast.error("Failed to load next question. Try again.");
+      throw err; // Re-throw to handle in calling function
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchQuestion = async (prevAnswer = null, isFinal = false) => {
     try {
       setLoading(true);
@@ -46,7 +92,7 @@ const TakeAssessment = () => {
           is_last_question: true,
         };
       } else {
-        // Normal flow
+        // Normal flow - first question only
         payload = {
           attempt_id: attemptId,
           set_id: currentSet.set_id,
@@ -93,9 +139,23 @@ const TakeAssessment = () => {
       hasQuestionData: !!questionData,
       currentSet: currentSet?.set_id,
       questionId,
+      loading,
+      isSubmitting,
     });
 
-    if (attemptId && currentSet && questionId && !questionData) {
+    // Only fetch if:
+    // 1. We have all required data
+    // 2. No question data exists
+    // 3. Not currently loading
+    // 4. Not currently submitting
+    if (
+      attemptId &&
+      currentSet &&
+      questionId &&
+      !questionData &&
+      !loading &&
+      !isSubmitting
+    ) {
       console.log("✅ Conditions met, fetching question...");
       fetchQuestion();
     } else {
@@ -139,24 +199,38 @@ const TakeAssessment = () => {
         await fetchQuestion(prevAnswer, true);
       } else {
         console.log("➡️ Moving to next question...");
-        // Move to next question first
-        if (!isLastInSet) {
-          console.log("📍 Moving to next question in same set");
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
-        } else if (!isLastSet) {
-          console.log("📍 Moving to next set");
-          setCurrentSetIndex(currentSetIndex + 1);
-          setCurrentQuestionIndex(0);
-        }
 
-        // Clear current question data and selected option
+        // Clear current question data and selected option FIRST
         console.log("🧹 Clearing current question data...");
         setQuestionData(null);
         setSelectedOption(null);
 
-        // Fetch next question
+        // Calculate next indices
+        let nextSetIndex = currentSetIndex;
+        let nextQuestionIndex = currentQuestionIndex;
+
+        if (!isLastInSet) {
+          console.log("📍 Moving to next question in same set");
+          nextQuestionIndex = currentQuestionIndex + 1;
+        } else if (!isLastSet) {
+          console.log("📍 Moving to next set");
+          nextSetIndex = currentSetIndex + 1;
+          nextQuestionIndex = 0;
+        }
+
+        console.log("📍 Next indices will be:", {
+          nextSetIndex,
+          nextQuestionIndex,
+        });
+
+        // Fetch next question with calculated indices
         console.log("🔄 Fetching next question...");
-        await fetchQuestion(prevAnswer);
+        await fetchNextQuestion(prevAnswer, nextSetIndex, nextQuestionIndex);
+
+        // Update state only after successful API call
+        console.log("📍 Updating state indices...");
+        setCurrentSetIndex(nextSetIndex);
+        setCurrentQuestionIndex(nextQuestionIndex);
       }
     } catch (error) {
       console.error("❌ Error in handleNext:", error);

@@ -17,7 +17,6 @@ const AssessmentCandidates = () => {
         page,
         pagination.limit
       );
-      console.log("Response from GET /assessment-candidates:", response);
 
       setCandidates(response.data.results || []);
       setPagination({

@@ -7,15 +7,6 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   const { user, role, authReady } = useAuth();
   const location = useLocation();
 
-  console.log(
-    "ProtectedRoute → user:",
-    user,
-    "role:",
-    role,
-    "authReady:",
-    authReady
-  );
-
   if (!authReady) {
     return <div className="p-8 text-center">Loading...</div>;
   }
@@ -23,7 +14,6 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   if (!user || !role) {
     // Store the current location (including query params) for redirect after login
     const redirectPath = `${location.pathname}${location.search}`;
-    console.log("ProtectedRoute → Storing redirect path:", redirectPath);
 
     // Store in both localStorage and sessionStorage for reliability
     localStorage.setItem("redirectAfterLogin", redirectPath);

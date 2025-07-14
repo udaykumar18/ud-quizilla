@@ -85,6 +85,13 @@ const CreateAssessment = () => {
           : formData.instructions,
       };
 
+      // Explicitly remove empty instructions so it's not sent at all
+      if (isContentEmpty(formData.instructions)) {
+        delete submissionData.instructions;
+      } else {
+        submissionData.instructions = formData.instructions;
+      }
+
       await api.createAssessment(submissionData);
       alert("Assessment created successfully!");
       navigate("/assessments");

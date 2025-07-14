@@ -26,7 +26,7 @@ const CreateAssessment = () => {
     // Set initial instructions
     setFormData((prev) => ({
       ...prev,
-      instruction: defaultInstructions,
+      instructions: defaultInstructions,
     }));
   }, []);
 
@@ -50,6 +50,21 @@ const CreateAssessment = () => {
       .reduce((total, set) => total + set.time_limit, 0);
   };
 
+  // Helper function to check if content is empty
+  const isContentEmpty = (html) => {
+    if (!html || html.trim() === "") return true;
+
+    // Create a temporary div to parse the HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+
+    // Get the text content without HTML tags
+    const textContent = tempDiv.textContent || tempDiv.innerText || "";
+
+    // Check if text content is empty (only whitespace)
+    return textContent.trim() === "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -64,6 +79,10 @@ const CreateAssessment = () => {
       const submissionData = {
         ...formData,
         total_time: calculateTotalTime(formData.set_ids),
+        // Don't send instructions if empty - let backend use default
+        instructions: isContentEmpty(formData.instructions)
+          ? undefined
+          : formData.instructions,
       };
 
       await api.createAssessment(submissionData);
@@ -127,7 +146,7 @@ const CreateAssessment = () => {
   const handleInstructionsChange = (content) => {
     setFormData((prev) => ({
       ...prev,
-      instruction: content,
+      instructions: content,
     }));
   };
 

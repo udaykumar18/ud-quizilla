@@ -30,6 +30,21 @@ const RichTextEditor = forwardRef(
       }
     }, [ref, readOnly]);
 
+    // Helper function to check if content is empty
+    const isContentEmpty = (html) => {
+      if (!html || html.trim() === "") return true;
+
+      // Create a temporary div to parse the HTML
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+
+      // Get the text content without HTML tags
+      const textContent = tempDiv.textContent || tempDiv.innerText || "";
+
+      // Check if text content is empty (only whitespace)
+      return textContent.trim() === "";
+    };
+
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
@@ -69,7 +84,11 @@ const RichTextEditor = forwardRef(
       // Set up event listeners
       quill.on(Quill.events.TEXT_CHANGE, (...args) => {
         const content = quill.root.innerHTML;
-        onTextChangeRef.current?.(content, ...args);
+
+        // Check if content is empty and send empty string if so
+        const finalContent = isContentEmpty(content) ? "" : content;
+
+        onTextChangeRef.current?.(finalContent, ...args);
       });
 
       quill.on(Quill.events.SELECTION_CHANGE, (...args) => {

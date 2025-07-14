@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import RichTextEditor from "../components/RichTextEditor"; // We'll create this component
+import RichTextEditor from "../components/RichTextEditor";
 
 const CreateAssessment = () => {
   const navigate = useNavigate();
@@ -19,16 +19,7 @@ const CreateAssessment = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingQuestionSets, setFetchingQuestionSets] = useState(true);
 
-  const defaultInstructions = `<h2>Assessment Instructions</h2>
-<ul>
-  <li>Ensure you are in a quiet environment with a stable internet connection.</li>
-  <li>Do not refresh or close the browser tab during the assessment.</li>
-  <li>Each question must be answered before moving to the next.</li>
-  <li>You cannot go back to previous questions once submitted.</li>
-  <li>Use only the options provided — no external help is allowed.</li>
-  <li>The assessment is time-bound. Complete it within the allotted duration.</li>
-  <li>Your answers will be auto-submitted when time is up or upon completion.</li>
-</ul>`;
+  const defaultInstructions = `<h2>Assessment Instructions</h2>`;
 
   useEffect(() => {
     fetchQuestionSets();

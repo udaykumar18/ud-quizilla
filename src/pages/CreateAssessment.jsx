@@ -35,7 +35,7 @@ const CreateAssessment = () => {
     // Set initial instructions
     setFormData((prev) => ({
       ...prev,
-      instructions: defaultInstructions,
+      instruction: defaultInstructions,
     }));
   }, []);
 
@@ -136,7 +136,7 @@ const CreateAssessment = () => {
   const handleInstructionsChange = (content) => {
     setFormData((prev) => ({
       ...prev,
-      instructions: content,
+      instruction: content,
     }));
   };
 

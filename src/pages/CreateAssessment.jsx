@@ -1,20 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 const CreateAssessment = () => {
   const navigate = useNavigate();
+  const quillRef = useRef(null);
+  const quillInstance = useRef(null);
+
   const [formData, setFormData] = useState({
     name: "",
     status: "ACTIVE",
     set_ids: [],
+    total_time: 0,
+    instructions: "",
   });
+
   const [questionSets, setQuestionSets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingQuestionSets, setFetchingQuestionSets] = useState(true);
 
+  const defaultInstructions = `<h2>Assessment Instructions</h2>
+<ul>
+  <li>Ensure you are in a quiet environment with a stable internet connection.</li>
+  <li>Do not refresh or close the browser tab during the assessment.</li>
+  <li>Each question must be answered before moving to the next.</li>
+  <li>You cannot go back to previous questions once submitted.</li>
+  <li>Use only the options provided — no external help is allowed.</li>
+  <li>The assessment is time-bound. Complete it within the allotted duration.</li>
+  <li>Your answers will be auto-submitted when time is up or upon completion.</li>
+</ul>`;
+
   useEffect(() => {
     fetchQuestionSets();
+  }, []);
+
+  useEffect(() => {
+    // Initialize Quill editor
+    if (quillRef.current && !quillInstance.current) {
+      quillInstance.current = new Quill(quillRef.current, {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link"],
+            ["clean"],
+          ],
+        },
+        placeholder: "Enter assessment instructions...",
+      });
+
+      // Set default content
+      quillInstance.current.root.innerHTML = defaultInstructions;
+
+      // Update formData when content changes
+      quillInstance.current.on("text-change", () => {
+        const content = quillInstance.current.root.innerHTML;
+        setFormData((prev) => ({
+          ...prev,
+          instructions: content,
+        }));
+      });
+
+      // Set initial instructions in formData
+      setFormData((prev) => ({
+        ...prev,
+        instructions: defaultInstructions,
+      }));
+    }
+
+    return () => {
+      if (quillInstance.current) {
+        quillInstance.current.off("text-change");
+      }
+    };
   }, []);
 
   const fetchQuestionSets = async () => {
@@ -31,6 +93,12 @@ const CreateAssessment = () => {
     }
   };
 
+  const calculateTotalTime = (selectedSetIds) => {
+    return questionSets
+      .filter((set) => selectedSetIds.includes(set.id))
+      .reduce((total, set) => total + set.time_limit, 0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -42,7 +110,12 @@ const CreateAssessment = () => {
     setLoading(true);
 
     try {
-      await api.createAssessment(formData);
+      const submissionData = {
+        ...formData,
+        total_time: calculateTotalTime(formData.set_ids),
+      };
+
+      await api.createAssessment(submissionData);
       alert("Assessment created successfully!");
       navigate("/assessments");
     } catch (error) {
@@ -58,26 +131,32 @@ const CreateAssessment = () => {
       ? formData.set_ids.filter((id) => id !== setId)
       : [...formData.set_ids, setId];
 
+    const newTotalTime = calculateTotalTime(newSetIds);
+
     setFormData({
       ...formData,
       set_ids: newSetIds,
+      total_time: newTotalTime,
     });
   };
 
   const handleSelectAll = () => {
+    let newSetIds;
     if (formData.set_ids.length === questionSets.length) {
       // Deselect all
-      setFormData({
-        ...formData,
-        set_ids: [],
-      });
+      newSetIds = [];
     } else {
       // Select all
-      setFormData({
-        ...formData,
-        set_ids: questionSets.map((set) => set.id),
-      });
+      newSetIds = questionSets.map((set) => set.id);
     }
+
+    const newTotalTime = calculateTotalTime(newSetIds);
+
+    setFormData({
+      ...formData,
+      set_ids: newSetIds,
+      total_time: newTotalTime,
+    });
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -219,6 +298,15 @@ const CreateAssessment = () => {
             )}
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Assessment Instructions
+            </label>
+            <div className="border border-gray-300 rounded-lg">
+              <div ref={quillRef} style={{ minHeight: "200px" }} />
+            </div>
+          </div>
+
           {formData.set_ids.length > 0 && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h3 className="text-sm font-medium text-blue-800 mb-2">
@@ -226,12 +314,12 @@ const CreateAssessment = () => {
               </h3>
               <div className="text-sm text-blue-700">
                 <p>• {formData.set_ids.length} question sets selected</p>
+                <p>• Total time: {formData.total_time} minutes</p>
                 <p>
-                  • Total time estimate:{" "}
+                  • Total questions:{" "}
                   {questionSets
                     .filter((set) => formData.set_ids.includes(set.id))
-                    .reduce((total, set) => total + set.time_limit, 0)}{" "}
-                  minutes
+                    .reduce((total, set) => total + set.question_count, 0)}
                 </p>
               </div>
             </div>

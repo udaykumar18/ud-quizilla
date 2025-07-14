@@ -1,0 +1,122 @@
+/* RichTextEditor.css - Optional additional styling */
+
+.rich-text-editor {
+  position: relative;
+}
+
+.rich-text-editor .ql-editor {
+  min-height: 200px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.rich-text-editor .ql-toolbar {
+  border-top: 1px solid #e5e7eb;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: none;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.rich-text-editor .ql-container {
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  border-top: none;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.rich-text-editor .ql-editor:focus {
+  outline: none;
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Customize toolbar buttons */
+.rich-text-editor .ql-toolbar button {
+  border-radius: 0.25rem;
+  margin: 0 1px;
+}
+
+.rich-text-editor .ql-toolbar button:hover {
+  background-color: #f3f4f6;
+}
+
+.rich-text-editor .ql-toolbar button.ql-active {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Customize dropdown */
+.rich-text-editor .ql-toolbar .ql-picker {
+  border-radius: 0.25rem;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker:hover {
+  background-color: #f3f4f6;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker.ql-expanded {
+  background-color: #f3f4f6;
+}
+
+/* Style the content area */
+.rich-text-editor .ql-editor h1,
+.rich-text-editor .ql-editor h2,
+.rich-text-editor .ql-editor h3 {
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.rich-text-editor .ql-editor h1 {
+  font-size: 1.5rem;
+}
+
+.rich-text-editor .ql-editor h2 {
+  font-size: 1.25rem;
+}
+
+.rich-text-editor .ql-editor h3 {
+  font-size: 1.125rem;
+}
+
+.rich-text-editor .ql-editor ul,
+.rich-text-editor .ql-editor ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.rich-text-editor .ql-editor li {
+  margin: 0.25rem 0;
+}
+
+.rich-text-editor .ql-editor a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.rich-text-editor .ql-editor a:hover {
+  color: #1d4ed8;
+}
+
+.rich-text-editor .ql-editor strong {
+  font-weight: 600;
+}
+
+.rich-text-editor .ql-editor em {
+  font-style: italic;
+}
+
+.rich-text-editor .ql-editor u {
+  text-decoration: underline;
+}
+
+.rich-text-editor .ql-editor s {
+  text-decoration: line-through;
+}

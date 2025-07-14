@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import Quill from "quill";
-import "quill/dist/quill.snow.css";
+import RichTextEditor from "../components/RichTextEditor"; // We'll create this component
 
 const CreateAssessment = () => {
   const navigate = useNavigate();
-  const quillRef = useRef(null);
-  const quillInstance = useRef(null);
+  const editorRef = useRef();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,49 +32,11 @@ const CreateAssessment = () => {
 
   useEffect(() => {
     fetchQuestionSets();
-  }, []);
-
-  useEffect(() => {
-    // Initialize Quill editor
-    if (quillRef.current && !quillInstance.current) {
-      quillInstance.current = new Quill(quillRef.current, {
-        theme: "snow",
-        modules: {
-          toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
-            ["clean"],
-          ],
-        },
-        placeholder: "Enter assessment instructions...",
-      });
-
-      // Set default content
-      quillInstance.current.root.innerHTML = defaultInstructions;
-
-      // Update formData when content changes
-      quillInstance.current.on("text-change", () => {
-        const content = quillInstance.current.root.innerHTML;
-        setFormData((prev) => ({
-          ...prev,
-          instructions: content,
-        }));
-      });
-
-      // Set initial instructions in formData
-      setFormData((prev) => ({
-        ...prev,
-        instructions: defaultInstructions,
-      }));
-    }
-
-    return () => {
-      if (quillInstance.current) {
-        quillInstance.current.off("text-change");
-      }
-    };
+    // Set initial instructions
+    setFormData((prev) => ({
+      ...prev,
+      instructions: defaultInstructions,
+    }));
   }, []);
 
   const fetchQuestionSets = async () => {
@@ -170,6 +130,14 @@ const CreateAssessment = () => {
       default:
         return "text-gray-600 bg-gray-100";
     }
+  };
+
+  // Handle text change from editor
+  const handleInstructionsChange = (content) => {
+    setFormData((prev) => ({
+      ...prev,
+      instructions: content,
+    }));
   };
 
   if (fetchingQuestionSets) {
@@ -303,7 +271,12 @@ const CreateAssessment = () => {
               Assessment Instructions
             </label>
             <div className="border border-gray-300 rounded-lg">
-              <div ref={quillRef} style={{ minHeight: "200px" }} />
+              <RichTextEditor
+                ref={editorRef}
+                defaultValue={defaultInstructions}
+                onTextChange={handleInstructionsChange}
+                placeholder="Enter assessment instructions..."
+              />
             </div>
           </div>
 

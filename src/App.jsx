@@ -5,6 +5,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import "./App.css";
+
 import Sidebar from "./components/Sidebar";
 import CandidateSidebar from "./components/CandidateSidebar";
 import Dashboard from "./pages/Dashboard";

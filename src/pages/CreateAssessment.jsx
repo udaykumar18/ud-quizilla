@@ -1,33 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import RichTextEditor from "../components/RichTextEditor";
 
 const CreateAssessment = () => {
   const navigate = useNavigate();
-  const editorRef = useRef();
+
+  const defaultInstructions = `<h2>Assessment Instructions</h2>
+<ul>
+  <li>Ensure you are in a quiet environment with a stable internet connection.</li>
+  <li>Do not refresh or close the browser tab during the assessment.</li>
+  <li>Each question must be answered before moving to the next.</li>
+  <li>You cannot go back to previous questions once submitted.</li>
+  <li>Use only the options provided — no external help is allowed.</li>
+  <li>The assessment is time-bound. Complete it within the allotted duration.</li>
+  <li>Your answers will be auto-submitted when time is up or upon completion.</li>
+</ul>`;
 
   const [formData, setFormData] = useState({
     name: "",
     status: "ACTIVE",
     set_ids: [],
     total_time: 0,
-    instructions: "",
+    instructions: defaultInstructions,
   });
 
   const [questionSets, setQuestionSets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingQuestionSets, setFetchingQuestionSets] = useState(true);
 
-  const defaultInstructions = `<h2>Assessment Instructions</h2>`;
-
   useEffect(() => {
     fetchQuestionSets();
-    // Set initial instructions
-    setFormData((prev) => ({
-      ...prev,
-      instructions: defaultInstructions,
-    }));
   }, []);
 
   const fetchQuestionSets = async () => {
@@ -79,13 +81,9 @@ const CreateAssessment = () => {
       const submissionData = {
         ...formData,
         total_time: calculateTotalTime(formData.set_ids),
-        // Don't send instructions if empty - let backend use default
-        instructions: isContentEmpty(formData.instructions)
-          ? undefined
-          : formData.instructions,
       };
 
-      // Explicitly remove empty instructions so it's not sent at all
+      // Don't send instructions if empty - let backend use default
       if (isContentEmpty(formData.instructions)) {
         delete submissionData.instructions;
       } else {
@@ -147,14 +145,6 @@ const CreateAssessment = () => {
       default:
         return "text-gray-600 bg-gray-100";
     }
-  };
-
-  // Handle text change from editor
-  const handleInstructionsChange = (content) => {
-    setFormData((prev) => ({
-      ...prev,
-      instructions: content,
-    }));
   };
 
   if (fetchingQuestionSets) {
@@ -285,16 +275,22 @@ const CreateAssessment = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Assessment Instructions
+              Assessment Instructions (HTML)
             </label>
-            <div className="border border-gray-300 rounded-lg">
-              <RichTextEditor
-                ref={editorRef}
-                defaultValue={defaultInstructions}
-                onTextChange={handleInstructionsChange}
-                placeholder="Enter assessment instructions..."
-              />
-            </div>
+            <textarea
+              value={formData.instructions}
+              onChange={(e) =>
+                setFormData({ ...formData, instructions: e.target.value })
+              }
+              placeholder="Enter assessment instructions in HTML format..."
+              rows={8}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              You can use HTML tags like &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;,
+              &lt;li&gt;, etc. Clear all content to let the backend use default
+              instructions.
+            </p>
           </div>
 
           {formData.set_ids.length > 0 && (

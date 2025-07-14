@@ -21,7 +21,7 @@ const CreateAssessment = () => {
     status: "ACTIVE",
     set_ids: [],
     total_time: 0,
-    instructions: defaultInstructions,
+    instruction: defaultInstructions,
   });
 
   const [questionSets, setQuestionSets] = useState([]);
@@ -84,10 +84,10 @@ const CreateAssessment = () => {
       };
 
       // Don't send instructions if empty - let backend use default
-      if (isContentEmpty(formData.instructions)) {
-        delete submissionData.instructions;
+      if (isContentEmpty(formData.instruction)) {
+        delete submissionData.instruction;
       } else {
-        submissionData.instructions = formData.instructions;
+        submissionData.instruction = formData.instruction;
       }
 
       await api.createAssessment(submissionData);
@@ -278,9 +278,9 @@ const CreateAssessment = () => {
               Assessment Instructions (HTML)
             </label>
             <textarea
-              value={formData.instructions}
+              value={formData.instruction}
               onChange={(e) =>
-                setFormData({ ...formData, instructions: e.target.value })
+                setFormData({ ...formData, instruction: e.target.value })
               }
               placeholder="Enter assessment instructions in HTML format..."
               rows={8}

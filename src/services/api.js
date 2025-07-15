@@ -82,21 +82,16 @@ const api = {
   },
 
   getAssessmentById: async (id) => {
-    const response = await fetch(
-      `https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev/assessment/${id}`
-    );
+    const response = await fetch(`${API_BASE}/assessment/${id}`);
     return response.json();
   },
 
   updateAssessment: async (id, data) => {
-    const response = await fetch(
-      `https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev/assessment/${id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(`${API_BASE}/assessment/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
     const json = await response.json();
     if (!response.ok) {
       console.error("Update failed:", json);

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Trash2, FileText } from "lucide-react";
+import { Plus, Eye, Trash2, FileText, Pencil } from "lucide-react";
 import api from "../services/api";
+import UpdateAssessmentModal from "../components/UpdateAssessmentModal";
 
 const Assessments = () => {
   const navigate = useNavigate();
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState(null); // ✅ new state
 
   useEffect(() => {
     fetchAssessments();
@@ -117,6 +119,13 @@ const Assessments = () => {
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
+                        onClick={() => setEditingId(assessment.id)}
+                        className="text-yellow-600 hover:text-yellow-800 p-1 rounded hover:bg-yellow-50"
+                        title="Edit Assessment"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => handleDeleteAssessment(assessment.id)}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                         title="Delete Assessment"
@@ -130,6 +139,14 @@ const Assessments = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {editingId && (
+        <UpdateAssessmentModal
+          assessmentId={editingId}
+          onClose={() => setEditingId(null)}
+          onUpdated={fetchAssessments}
+        />
       )}
     </div>
   );

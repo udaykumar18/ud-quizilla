@@ -81,6 +81,25 @@ const api = {
     return response.json();
   },
 
+  getAssessmentById: async (id) => {
+    const response = await fetch(`${API_BASE}/assessment/${id}`);
+    return response.json();
+  },
+
+  updateAssessment: async (id, data) => {
+    const response = await fetch(`${API_BASE}/assessment/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const json = await response.json();
+    if (!response.ok) {
+      console.error("Update failed:", json);
+      throw new Error(json?.error || "Update failed");
+    }
+    return json;
+  },
+
   getAssessments: async () => {
     const response = await fetch(`${API_BASE}/assessments`);
     return response.json();

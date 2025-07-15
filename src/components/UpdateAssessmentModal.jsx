@@ -13,7 +13,7 @@ const UpdateAssessmentModal = ({ assessmentId, onClose, onUpdated }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.getAssessment(assessmentId);
+        const res = await api.getAssessmentById(assessmentId);
         setFormData(res.data);
       } catch (err) {
         console.error(err);

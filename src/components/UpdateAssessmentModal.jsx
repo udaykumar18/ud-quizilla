@@ -14,7 +14,7 @@ const UpdateAssessmentModal = ({ assessmentId, onClose, onUpdated }) => {
       setLoading(true);
       try {
         const res = await api.getAssessmentById(assessmentId);
-        setFormData(res.data);
+        setFormData(res.data.assessment);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load assessment");
@@ -44,7 +44,6 @@ const UpdateAssessmentModal = ({ assessmentId, onClose, onUpdated }) => {
         total_time: Number(formData.total_time),
       };
       const res = await api.updateAssessment(assessmentId, payload);
-      console.log("Update response:", res);
       toast.success("Assessment updated successfully");
       onUpdated();
       onClose();

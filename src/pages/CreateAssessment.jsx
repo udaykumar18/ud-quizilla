@@ -24,6 +24,9 @@ const CreateAssessment = () => {
     instruction: defaultInstructions,
   });
 
+  // New state to track questions per set
+  const [questionsPerSet, setQuestionsPerSet] = useState({});
+
   const [questionSets, setQuestionSets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingQuestionSets, setFetchingQuestionSets] = useState(true);
@@ -75,11 +78,40 @@ const CreateAssessment = () => {
       return;
     }
 
+    // Validate questions per set
+    for (const setId of formData.set_ids) {
+      const questionsCount = questionsPerSet[setId];
+      if (!questionsCount || questionsCount <= 0) {
+        const setName =
+          questionSets.find((set) => set.id === setId)?.name || "Unknown";
+        alert(`Please specify the number of questions for "${setName}"`);
+        return;
+      }
+
+      const maxQuestions =
+        questionSets.find((set) => set.id === setId)?.question_count || 0;
+      if (questionsCount > maxQuestions) {
+        const setName =
+          questionSets.find((set) => set.id === setId)?.name || "Unknown";
+        alert(
+          `Number of questions for "${setName}" cannot exceed ${maxQuestions}`
+        );
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
+      // Transform set_ids to the new format with questions_per_set
+      const transformedSetIds = formData.set_ids.map((setId) => ({
+        set_id: setId,
+        questions_per_set: questionsPerSet[setId],
+      }));
+
       const submissionData = {
         ...formData,
+        set_ids: transformedSetIds,
         total_time: calculateTotalTime(formData.set_ids),
       };
 
@@ -113,16 +145,44 @@ const CreateAssessment = () => {
       set_ids: newSetIds,
       total_time: newTotalTime,
     });
+
+    // If deselecting, remove from questionsPerSet
+    if (!newSetIds.includes(setId)) {
+      const newQuestionsPerSet = { ...questionsPerSet };
+      delete newQuestionsPerSet[setId];
+      setQuestionsPerSet(newQuestionsPerSet);
+    } else {
+      // If selecting, set default value to 1
+      setQuestionsPerSet({
+        ...questionsPerSet,
+        [setId]: 1,
+      });
+    }
+  };
+
+  const handleQuestionsPerSetChange = (setId, value) => {
+    const numValue = parseInt(value) || 0;
+    setQuestionsPerSet({
+      ...questionsPerSet,
+      [setId]: numValue,
+    });
   };
 
   const handleSelectAll = () => {
     let newSetIds;
+    let newQuestionsPerSet = {};
+
     if (formData.set_ids.length === questionSets.length) {
       // Deselect all
       newSetIds = [];
+      newQuestionsPerSet = {};
     } else {
       // Select all
       newSetIds = questionSets.map((set) => set.id);
+      // Set default questions per set to 1 for all selected sets
+      questionSets.forEach((set) => {
+        newQuestionsPerSet[set.id] = questionsPerSet[set.id] || 1;
+      });
     }
 
     const newTotalTime = calculateTotalTime(newSetIds);
@@ -132,6 +192,8 @@ const CreateAssessment = () => {
       set_ids: newSetIds,
       total_time: newTotalTime,
     });
+
+    setQuestionsPerSet(newQuestionsPerSet);
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -145,6 +207,12 @@ const CreateAssessment = () => {
       default:
         return "text-gray-600 bg-gray-100";
     }
+  };
+
+  const getTotalSelectedQuestions = () => {
+    return formData.set_ids.reduce((total, setId) => {
+      return total + (questionsPerSet[setId] || 0);
+    }, 0);
   };
 
   if (fetchingQuestionSets) {
@@ -230,42 +298,68 @@ const CreateAssessment = () => {
                 </div>
                 <div className="divide-y divide-gray-200">
                   {questionSets.map((set) => (
-                    <div
-                      key={set.id}
-                      className="p-4 hover:bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          id={`set-${set.id}`}
-                          checked={formData.set_ids.includes(set.id)}
-                          onChange={() => handleQuestionSetToggle(set.id)}
-                          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                        />
-                        <div className="ml-3">
-                          <label
-                            htmlFor={`set-${set.id}`}
-                            className="text-sm font-medium text-gray-900 cursor-pointer"
+                    <div key={set.id} className="p-4 hover:bg-gray-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`set-${set.id}`}
+                            checked={formData.set_ids.includes(set.id)}
+                            onChange={() => handleQuestionSetToggle(set.id)}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <div className="ml-3">
+                            <label
+                              htmlFor={`set-${set.id}`}
+                              className="text-sm font-medium text-gray-900 cursor-pointer"
+                            >
+                              {set.name}
+                            </label>
+                            <p className="text-xs text-gray-500">
+                              {set.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(
+                              set.difficulty
+                            )}`}
                           >
-                            {set.name}
-                          </label>
-                          <p className="text-xs text-gray-500">
-                            {set.description}
-                          </p>
+                            {set.difficulty}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {set.question_count} questions • {set.time_limit}{" "}
+                            min
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(
-                            set.difficulty
-                          )}`}
-                        >
-                          {set.difficulty}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {set.question_count} questions • {set.time_limit} min
-                        </span>
-                      </div>
+
+                      {/* Questions per set input - only show when selected */}
+                      {formData.set_ids.includes(set.id) && (
+                        <div className="ml-7 mt-2">
+                          <label className="block text-xs font-medium text-gray-600 mb-1">
+                            Number of questions to include from this set:
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={set.question_count}
+                            value={questionsPerSet[set.id] || ""}
+                            onChange={(e) =>
+                              handleQuestionsPerSetChange(
+                                set.id,
+                                e.target.value
+                              )
+                            }
+                            placeholder="Enter number"
+                            className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <span className="text-xs text-gray-500 ml-2">
+                            (Max: {set.question_count})
+                          </span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -301,12 +395,21 @@ const CreateAssessment = () => {
               <div className="text-sm text-blue-700">
                 <p>• {formData.set_ids.length} question sets selected</p>
                 <p>• Total time: {formData.total_time} minutes</p>
-                <p>
-                  • Total questions:{" "}
-                  {questionSets
-                    .filter((set) => formData.set_ids.includes(set.id))
-                    .reduce((total, set) => total + set.question_count, 0)}
-                </p>
+                <p>• Total questions: {getTotalSelectedQuestions()}</p>
+              </div>
+
+              {/* Show breakdown of questions per set */}
+              <div className="mt-3 text-xs text-blue-600">
+                <p className="font-medium mb-1">Questions breakdown:</p>
+                {formData.set_ids.map((setId) => {
+                  const set = questionSets.find((s) => s.id === setId);
+                  const questionCount = questionsPerSet[setId];
+                  return (
+                    <p key={setId} className="ml-2">
+                      • {set?.name}: {questionCount || 0} questions
+                    </p>
+                  );
+                })}
               </div>
             </div>
           )}

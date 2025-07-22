@@ -41,9 +41,9 @@ const EditQuestionSetModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+
     const payload = {
       name: formData.name,
-      question_type: formData.question_type,
       time_limit: Number(formData.time_limit),
       description: formData.description,
       difficulty: formData.difficulty,
@@ -102,8 +102,8 @@ const EditQuestionSetModal = ({
               <select
                 name="question_type"
                 value={formData.question_type}
-                onChange={handleChange}
-                className="border px-3 py-2 rounded"
+                disabled
+                className="border px-3 py-2 rounded bg-gray-100 text-gray-500"
               >
                 <option value="MULTIPLE_CHOICE">Multiple Choice</option>
                 <option value="SHORT_ANSWER">Short Answer</option>

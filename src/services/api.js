@@ -105,10 +105,17 @@ const api = {
     return response.json();
   },
 
-  getAssessmentCandidates: async (assessmentId, page = 1, limit = 5) => {
-    const res = await fetch(
-      `${API_BASE}/assessment-candidates?assessment_id=${assessmentId}&page=${page}&limit=${limit}`
-    );
+  getAssessmentCandidates: async (
+    assessmentId,
+    page = 1,
+    limit = 5,
+    status
+  ) => {
+    let url = `${API_BASE}/assessment-candidates?assessment_id=${assessmentId}&page=${page}&limit=${limit}`;
+    if (status && status !== "ALL") {
+      url += `&status=${status}`;
+    }
+    const res = await fetch(url);
     return await res.json();
   },
 

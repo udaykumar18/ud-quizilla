@@ -2,20 +2,24 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
+const statusTabs = ["ALL", "COMPLETED", "IN_PROGRESS", "PENDING", "ABANDONED"];
+
 const AssessmentCandidates = () => {
   const { id: assessmentId } = useParams();
   const navigate = useNavigate();
   const [candidates, setCandidates] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 5 });
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState("ALL");
 
-  const fetchCandidates = async (page = 1) => {
+  const fetchCandidates = async (page = 1, status = selectedStatus) => {
     setLoading(true);
     try {
       const response = await api.getAssessmentCandidates(
         assessmentId,
         page,
-        pagination.limit
+        pagination.limit,
+        status !== "ALL" ? status : undefined // Only pass if filtering
       );
 
       setCandidates(response.data.results || []);
@@ -33,8 +37,8 @@ const AssessmentCandidates = () => {
   };
 
   useEffect(() => {
-    fetchCandidates();
-  }, [assessmentId]);
+    fetchCandidates(1); // Reset to page 1 when status changes
+  }, [assessmentId, selectedStatus]);
 
   const handleViewResult = (candidateId) => {
     navigate(`/candidate/${candidateId}/result/${assessmentId}`);
@@ -45,6 +49,23 @@ const AssessmentCandidates = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Candidates for Assessment</h1>
+
+      {/* Status Tabs */}
+      <div className="flex space-x-3 mb-4">
+        {statusTabs.map((status) => (
+          <button
+            key={status}
+            onClick={() => setSelectedStatus(status)}
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              selectedStatus === status
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
 
       {loading ? (
         <p>Loading...</p>

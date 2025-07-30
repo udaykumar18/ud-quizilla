@@ -121,6 +121,21 @@ const CreateQuestionSet = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    Question Type *
+                  </label>
+                  <select
+                    name="question_type"
+                    value={formData.question_type}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white"
+                  >
+                    <option value="MULTIPLE_CHOICE">📝 Multiple Choice</option>
+                    <option value="SHORT_ANSWER">✍️ Short Answer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Difficulty Level *
                   </label>
                   <select
@@ -129,9 +144,9 @@ const CreateQuestionSet = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white"
                   >
-                    <option value="easy">🟢 Easy</option>
-                    <option value="medium">🟡 Medium</option>
-                    <option value="hard">🔴 Hard</option>
+                    <option value="EASY">🟢 Easy</option>
+                    <option value="MEDIUM">🟡 Medium</option>
+                    <option value="HARD">🔴 Hard</option>
                   </select>
                 </div>
 

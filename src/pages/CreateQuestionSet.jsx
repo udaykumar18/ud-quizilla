@@ -7,10 +7,11 @@ const CreateQuestionSet = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    summary: "", // Changed from description to summary to match backend
-    difficulty: "easy", // Changed to lowercase to match backend
-    time_limit: 900, // Changed default to 900 seconds (15 minutes) to match backend
-    default_questions_limit: 5, // Added new required field
+    description: "", // Changed back to description to match backend
+    question_type: "MULTIPLE_CHOICE", // Added question_type field
+    difficulty: "EASY", // Changed to uppercase to match backend
+    time_limit: 30, // Changed default to 30 minutes
+    default_questions_limit: 8, // Changed default to 8
   });
   const [loading, setLoading] = useState(false);
 
@@ -19,13 +20,8 @@ const CreateQuestionSet = () => {
     setLoading(true);
 
     try {
-      // Convert time_limit from minutes to seconds for backend
-      const submitData = {
-        ...formData,
-        time_limit: formData.time_limit * 60,
-      };
-
-      await api.createQuestionSet(submitData);
+      // Send time_limit in minutes as per backend requirement
+      await api.createQuestionSet(formData);
       toast.success("Question set created successfully!");
       navigate("/question-sets");
     } catch (error) {
@@ -99,11 +95,11 @@ const CreateQuestionSet = () => {
 
                 <div className="lg:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Summary
+                    Description
                   </label>
                   <textarea
-                    name="summary"
-                    value={formData.summary}
+                    name="description"
+                    value={formData.description}
                     onChange={handleChange}
                     rows={4}
                     placeholder="Describe what this question set covers..."
@@ -150,7 +146,7 @@ const CreateQuestionSet = () => {
                     onChange={handleChange}
                     min="1"
                     max="180"
-                    placeholder="15"
+                    placeholder="30"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -158,7 +154,7 @@ const CreateQuestionSet = () => {
                   </p>
                 </div>
 
-                <div className="md:col-span-2">
+                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
                     Default Questions Limit *
                   </label>
@@ -169,7 +165,7 @@ const CreateQuestionSet = () => {
                     onChange={handleChange}
                     min="1"
                     max="50"
-                    placeholder="5"
+                    placeholder="8"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -184,9 +180,15 @@ const CreateQuestionSet = () => {
               <h4 className="font-semibold text-gray-900 mb-3">Summary</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
+                  <span className="text-gray-600">Question Type:</span>
+                  <p className="font-semibold text-gray-900">
+                    {formData.question_type.replace("_", " ")}
+                  </p>
+                </div>
+                <div>
                   <span className="text-gray-600">Difficulty:</span>
                   <p className="font-semibold text-gray-900 capitalize">
-                    {formData.difficulty}
+                    {formData.difficulty.toLowerCase()}
                   </p>
                 </div>
                 <div>
@@ -199,12 +201,6 @@ const CreateQuestionSet = () => {
                   <span className="text-gray-600">Questions:</span>
                   <p className="font-semibold text-gray-900">
                     {formData.default_questions_limit}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Status:</span>
-                  <p className="font-semibold text-green-600">
-                    Ready to Create
                   </p>
                 </div>
               </div>

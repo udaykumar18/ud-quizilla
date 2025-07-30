@@ -1,7 +1,7 @@
 // services/api.js
 
-// const API_BASE = "https://s0pzsax65i.execute-api.us-east-1.amazonaws.com/dev"; //Self Stack
-const API_BASE = "https://xv87726mp0.execute-api.ap-south-1.amazonaws.com/dev";
+const API_BASE = "https://3rifcujaxl.execute-api.us-east-1.amazonaws.com/dev"; //Self Stack
+// const API_BASE = "https://xv87726mp0.execute-api.ap-south-1.amazonaws.com/dev";
 
 const api = {
   // Question Sets

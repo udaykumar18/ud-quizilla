@@ -24,9 +24,10 @@ const CreateAssessment = () => {
     instruction: defaultInstructions,
   });
 
-  // State to track questions per set and time limit per set
+  // State to track questions per set, time limit per set, and weight per set
   const [questionsPerSet, setQuestionsPerSet] = useState({});
   const [timeLimitPerSet, setTimeLimitPerSet] = useState({});
+  const [weightPerSet, setWeightPerSet] = useState({});
 
   const [questionSets, setQuestionSets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +64,12 @@ const CreateAssessment = () => {
     }, 0);
   };
 
+  const getTotalWeight = () => {
+    return formData.set_ids.reduce((total, setId) => {
+      return total + (weightPerSet[setId] || 0);
+    }, 0);
+  };
+
   // Helper function to check if content is empty
   const isContentEmpty = (html) => {
     if (!html || html.trim() === "") return true;
@@ -78,11 +85,26 @@ const CreateAssessment = () => {
     return textContent.trim() === "";
   };
 
+  const validateWeights = () => {
+    const totalWeight = getTotalWeight();
+    if (totalWeight !== 100) {
+      return `Total weight must equal 100%. Current total: ${totalWeight}%`;
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.set_ids.length === 0) {
       alert("Please select at least one question set");
+      return;
+    }
+
+    // Validate weights
+    const weightError = validateWeights();
+    if (weightError) {
+      alert(weightError);
       return;
     }
 
@@ -103,10 +125,20 @@ const CreateAssessment = () => {
       }
     }
 
+    // Validate that all selected sets have weights
+    for (const setId of formData.set_ids) {
+      if (!weightPerSet[setId] || weightPerSet[setId] <= 0) {
+        const setName =
+          questionSets.find((set) => set.id === setId)?.name || "Unknown";
+        alert(`Please provide a weight for "${setName}"`);
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
-      // Transform set_ids to the new format with optional questions_per_set and time_limit
+      // Transform set_ids to the new format with optional questions_per_set, time_limit, and required weight
       const transformedSetIds = formData.set_ids.map((setId) => {
         const setData = { set_id: setId };
 
@@ -119,6 +151,9 @@ const CreateAssessment = () => {
         if (timeLimitPerSet[setId] && timeLimitPerSet[setId] > 0) {
           setData.time_limit = timeLimitPerSet[setId];
         }
+
+        // Include weight (required)
+        setData.weight = weightPerSet[setId];
 
         return setData;
       });
@@ -160,14 +195,17 @@ const CreateAssessment = () => {
       total_time: newTotalTime,
     });
 
-    // If deselecting, remove from questionsPerSet and timeLimitPerSet
+    // If deselecting, remove from questionsPerSet, timeLimitPerSet, and weightPerSet
     if (!newSetIds.includes(setId)) {
       const newQuestionsPerSet = { ...questionsPerSet };
       const newTimeLimitPerSet = { ...timeLimitPerSet };
+      const newWeightPerSet = { ...weightPerSet };
       delete newQuestionsPerSet[setId];
       delete newTimeLimitPerSet[setId];
+      delete newWeightPerSet[setId];
       setQuestionsPerSet(newQuestionsPerSet);
       setTimeLimitPerSet(newTimeLimitPerSet);
+      setWeightPerSet(newWeightPerSet);
     }
   };
 
@@ -195,26 +233,53 @@ const CreateAssessment = () => {
     });
   };
 
+  const handleWeightPerSetChange = (setId, value) => {
+    const numValue = parseInt(value) || 0;
+    setWeightPerSet({
+      ...weightPerSet,
+      [setId]: numValue > 0 ? numValue : 0,
+    });
+  };
+
+  const distributeWeightsEvenly = () => {
+    if (formData.set_ids.length === 0) return;
+    
+    const evenWeight = Math.floor(100 / formData.set_ids.length);
+    const remainder = 100 % formData.set_ids.length;
+    
+    const newWeightPerSet = {};
+    formData.set_ids.forEach((setId, index) => {
+      newWeightPerSet[setId] = evenWeight + (index < remainder ? 1 : 0);
+    });
+    
+    setWeightPerSet(newWeightPerSet);
+  };
+
   const handleSelectAll = () => {
     let newSetIds;
     let newQuestionsPerSet = {};
     let newTimeLimitPerSet = {};
+    let newWeightPerSet = {};
 
     if (formData.set_ids.length === questionSets.length) {
       // Deselect all
       newSetIds = [];
       newQuestionsPerSet = {};
       newTimeLimitPerSet = {};
+      newWeightPerSet = {};
     } else {
       // Select all
       newSetIds = questionSets.map((set) => set.id);
-      // Keep existing values for questions and time limits
+      // Keep existing values for questions, time limits, and weights
       questionSets.forEach((set) => {
         if (questionsPerSet[set.id]) {
           newQuestionsPerSet[set.id] = questionsPerSet[set.id];
         }
         if (timeLimitPerSet[set.id]) {
           newTimeLimitPerSet[set.id] = timeLimitPerSet[set.id];
+        }
+        if (weightPerSet[set.id]) {
+          newWeightPerSet[set.id] = weightPerSet[set.id];
         }
       });
     }
@@ -229,6 +294,7 @@ const CreateAssessment = () => {
 
     setQuestionsPerSet(newQuestionsPerSet);
     setTimeLimitPerSet(newTimeLimitPerSet);
+    setWeightPerSet(newWeightPerSet);
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -266,6 +332,9 @@ const CreateAssessment = () => {
       </div>
     );
   }
+
+  const totalWeight = getTotalWeight();
+  const isWeightValid = totalWeight === 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
@@ -331,22 +400,53 @@ const CreateAssessment = () => {
                     Select Question Sets *
                   </label>
                   <p className="text-sm text-slate-500 mt-1">
-                    Choose question sets and optionally customize questions
-                    count and time limits
+                    Choose question sets and configure questions count, time limits, and weights
                   </p>
                 </div>
                 {questionSets.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleSelectAll}
-                    className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-                  >
-                    {formData.set_ids.length === questionSets.length
-                      ? "Deselect All"
-                      : "Select All"}
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      type="button"
+                      onClick={distributeWeightsEvenly}
+                      disabled={formData.set_ids.length === 0}
+                      className="px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Distribute Weights Evenly
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSelectAll}
+                      className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      {formData.set_ids.length === questionSets.length
+                        ? "Deselect All"
+                        : "Select All"}
+                    </button>
+                  </div>
                 )}
               </div>
+
+              {/* Weight Total Indicator */}
+              {formData.set_ids.length > 0 && (
+                <div className={`p-4 rounded-lg border-2 ${
+                  isWeightValid 
+                    ? 'bg-emerald-50 border-emerald-200' 
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`text-sm font-medium ${
+                      isWeightValid ? 'text-emerald-800' : 'text-red-800'
+                    }`}>
+                      Total Weight: {totalWeight}%
+                    </span>
+                    {!isWeightValid && (
+                      <span className="text-xs text-red-600">
+                        Must equal 100%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {questionSets.length === 0 ? (
                 <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
@@ -392,7 +492,7 @@ const CreateAssessment = () => {
                           Total: {getTotalSelectedQuestions()} questions •{" "}
                           {formData.total_time ||
                             calculateTotalTime(formData.set_ids)}{" "}
-                          minutes
+                          minutes • {totalWeight}% weight
                         </div>
                       )}
                     </div>
@@ -451,9 +551,9 @@ const CreateAssessment = () => {
                               {formData.set_ids.includes(set.id) && (
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                   <h4 className="text-sm font-semibold text-blue-900 mb-3">
-                                    Custom Configuration (Optional)
+                                    Configuration
                                   </h4>
-                                  <div className="grid sm:grid-cols-2 gap-4">
+                                  <div className="grid sm:grid-cols-3 gap-4">
                                     <div>
                                       <label className="block text-xs font-medium text-blue-800 mb-2">
                                         Number of Questions
@@ -506,10 +606,37 @@ const CreateAssessment = () => {
                                         </div>
                                       </div>
                                     </div>
+
+                                    <div>
+                                      <label className="block text-xs font-medium text-blue-800 mb-2">
+                                        Weight (%) *
+                                      </label>
+                                      <div className="relative">
+                                        <input
+                                          type="number"
+                                          min="1"
+                                          max="100"
+                                          value={weightPerSet[set.id] || ""}
+                                          onChange={(e) =>
+                                            handleWeightPerSetChange(
+                                              set.id,
+                                              e.target.value
+                                            )
+                                          }
+                                          placeholder="Enter weight %"
+                                          className="w-full px-3 py-2 text-sm border border-blue-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                                          required
+                                        />
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                          <span className="text-xs text-blue-500">
+                                            %
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
                                   </div>
                                   <p className="text-xs text-blue-600 mt-2">
-                                    Leave empty to use default values from the
-                                    question set
+                                    Weight is required for scoring. Questions and time limit are optional - leave empty to use defaults.
                                   </p>
                                 </div>
                               )}
@@ -584,24 +711,24 @@ const CreateAssessment = () => {
                   Assessment Summary
                 </h3>
 
-                <div className="grid sm:grid-cols-3 gap-6 mb-4">
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {formData.set_ids.length}
-                    </div>
-                    <div className="text-sm text-blue-800">Question Sets</div>
-                  </div>
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {getTotalSelectedQuestions()}
-                    </div>
-                    <div className="text-sm text-blue-800">Total Questions</div>
-                  </div>
+                <div className="grid sm:grid-cols-4 gap-6 mb-4">
                   <div className="bg-white rounded-lg p-4 border border-blue-200">
                     <div className="text-2xl font-bold text-blue-600">
                       {calculateTotalTime(formData.set_ids)}
                     </div>
                     <div className="text-sm text-blue-800">Total Minutes</div>
+                  </div>
+                  <div className={`bg-white rounded-lg p-4 border ${
+                    isWeightValid ? 'border-blue-200' : 'border-red-200'
+                  }`}>
+                    <div className={`text-2xl font-bold ${
+                      isWeightValid ? 'text-blue-600' : 'text-red-600'
+                    }`}>
+                      {totalWeight}%
+                    </div>
+                    <div className={`text-sm ${
+                      isWeightValid ? 'text-blue-800' : 'text-red-800'
+                    }`}>Total Weight</div>
                   </div>
                 </div>
 
@@ -614,6 +741,7 @@ const CreateAssessment = () => {
                       const set = questionSets.find((s) => s.id === setId);
                       const customQuestions = questionsPerSet[setId];
                       const customTimeLimit = timeLimitPerSet[setId];
+                      const weight = weightPerSet[setId];
                       const questionCount =
                         customQuestions || set?.question_count || 0;
                       const timeLimit = customTimeLimit || set?.time_limit || 0;
@@ -626,10 +754,12 @@ const CreateAssessment = () => {
                           <span className="font-medium text-blue-900">
                             {set?.name}
                           </span>
-                          <div className="text-sm text-blue-700">
-                            {questionCount} questions • {timeLimit} min
+                          <div className="text-sm text-blue-700 flex items-center space-x-4">
+                            <span>
+                              {questionCount} questions • {timeLimit} min • {weight || 0}%
+                            </span>
                             {(customQuestions || customTimeLimit) && (
-                              <span className="ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
+                              <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full">
                                 Custom
                               </span>
                             )}
@@ -646,7 +776,7 @@ const CreateAssessment = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-200">
               <button
                 type="submit"
-                disabled={loading || formData.set_ids.length === 0}
+                disabled={loading || formData.set_ids.length === 0 || !isWeightValid}
                 className="flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {loading ? (

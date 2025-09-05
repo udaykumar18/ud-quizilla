@@ -88,51 +88,7 @@ const QuestionSets = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Total Sets</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">{questionSets.length}</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
-                <Layers className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Total Questions</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">
-                  {questionSets.reduce((total, set) => total + (set.questions?.length || 0), 0)}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                <HelpCircle className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Avg Questions</p>
-                <p className="text-3xl font-bold text-slate-900 mt-1">
-                  {questionSets.length > 0 
-                    ? Math.round(questionSets.reduce((total, set) => total + (set.questions?.length || 0), 0) / questionSets.length)
-                    : 0
-                  }
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Main Content */}
         {questionSets.length === 0 ? (

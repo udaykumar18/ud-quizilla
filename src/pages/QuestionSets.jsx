@@ -64,9 +64,6 @@ const QuestionSets = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-                  <BookOpen className="h-6 w-6 text-white" />
-                </div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent">
                   Question Sets
                 </h1>

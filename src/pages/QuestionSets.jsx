@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, HelpCircle, BookOpen, Layers } from "lucide-react";
 import { toast } from "react-hot-toast";
 import QuestionSetTable from "../components/QuestionSetTable";
 import Loading from "../components/Loading";
@@ -46,40 +46,160 @@ const QuestionSets = () => {
   };
 
   if (loading) {
-    return <Loading message="Loading question sets..." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+          <p className="text-slate-600 font-medium">Loading question sets...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Question Sets</h1>
-        <Link
-          to="/create-question-set"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          Create Question Set
-        </Link>
-      </div>
-
-      {questionSets.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <p className="text-gray-500 mb-4">No question sets found</p>
-          <Link
-            to="/create-question-set"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 inline-flex items-center"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Create Your First Question Set
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center mb-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
+                  <BookOpen className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent">
+                  Question Sets
+                </h1>
+              </div>
+              <p className="text-slate-600 leading-relaxed">
+                Create and manage reusable question collections for your assessments
+              </p>
+            </div>
+            <Link
+              to="/create-question-set"
+              className="group relative bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center sm:justify-start"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div className="relative flex items-center">
+                <Plus className="h-5 w-5 mr-2" />
+                Create Question Set
+              </div>
+            </Link>
+          </div>
         </div>
-      ) : (
-        <QuestionSetTable
-          questionSets={questionSets}
-          onDelete={handleDelete}
-          onUpdated={fetchQuestionSets}
-        />
-      )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Total Sets</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">{questionSets.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                <Layers className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Total Questions</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">
+                  {questionSets.reduce((total, set) => total + (set.questions?.length || 0), 0)}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+                <HelpCircle className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">Avg Questions</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">
+                  {questionSets.length > 0 
+                    ? Math.round(questionSets.reduce((total, set) => total + (set.questions?.length || 0), 0) / questionSets.length)
+                    : 0
+                  }
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <BookOpen className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        {questionSets.length === 0 ? (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-12 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <BookOpen className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                No question sets found
+              </h3>
+              <p className="text-slate-600 mb-8 leading-relaxed">
+                Start building your question library by creating your first question set. Organize questions by topic, difficulty, or any other criteria that works for you.
+              </p>
+              <Link
+                to="/create-question-set"
+                className="group relative bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 inline-flex items-center"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                <div className="relative flex items-center">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Create Your First Question Set
+                </div>
+              </Link>
+              
+              {/* Feature highlights */}
+              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-xl border border-blue-100">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mb-3">
+                    <Layers className="h-4 w-4 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-slate-900 mb-1">Organize Questions</h4>
+                  <p className="text-sm text-slate-600">Group related questions together for easy management and reuse.</p>
+                </div>
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-4 rounded-xl border border-emerald-100">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center mb-3">
+                    <BookOpen className="h-4 w-4 text-white" />
+                  </div>
+                  <h4 className="font-semibold text-slate-900 mb-1">Reusable Sets</h4>
+                  <p className="text-sm text-slate-600">Use the same question sets across multiple assessments.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-slate-50 to-purple-50 border-b border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">Your Question Sets</h2>
+                  <p className="text-slate-600 mt-1">Manage and organize your question collections</p>
+                </div>
+                <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200">
+                  <span className="text-sm font-medium text-slate-600">{questionSets.length} sets</span>
+                </div>
+              </div>
+            </div>
+            <QuestionSetTable
+              questionSets={questionSets}
+              onDelete={handleDelete}
+              onUpdated={fetchQuestionSets}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

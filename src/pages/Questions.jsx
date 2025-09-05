@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, HelpCircle, Check } from "lucide-react";
 import api from "../services/api";
 
 const Questions = () => {
@@ -77,154 +77,200 @@ const Questions = () => {
   };
 
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading questions...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Questions</h1>
-          <p className="text-gray-600">
-            Question Set: {questionSet?.name || "Loading..."}
-          </p>
-        </div>
-        <div className="flex space-x-4">
-          <button
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Question
-          </button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
           <button
             onClick={() => navigate("/question-sets")}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Question Sets
           </button>
-        </div>
-      </div>
-
-      {showCreateForm && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Add New Question
-          </h2>
-          <form onSubmit={handleCreateQuestion} className="space-y-4">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Question
-              </label>
-              <textarea
-                value={questionForm.question}
-                onChange={(e) =>
-                  setQuestionForm({ ...questionForm, question: e.target.value })
-                }
-                required
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Questions</h1>
+              <p className="text-gray-600 flex items-center">
+                <HelpCircle className="h-4 w-4 mr-2" />
+                {questionSet?.name || "Loading..."}
+              </p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Options
-              </label>
-              <div className="space-y-2">
-                {questionForm.options.map((option, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                    placeholder={`Option ${index + 1}`}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correct Answer
-              </label>
-              <input
-                type="text"
-                value={questionForm.solution}
-                onChange={(e) =>
-                  setQuestionForm({ ...questionForm, solution: e.target.value })
-                }
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-              >
-                Add Question
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowCreateForm(false)}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {questions.length === 0 ? (
-          <p className="text-gray-600">No questions found in this set.</p>
-        ) : (
-          questions.map((question, index) => (
-            <div
-              key={question.id}
-              className="bg-white rounded-lg shadow-md p-6"
+            
+            <button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors font-medium"
             >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Question {index + 1}
-                </h3>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Question
+            </button>
+          </div>
+        </div>
+
+        {/* Create Form */}
+        {showCreateForm && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Add New Question</h2>
+            
+            <form onSubmit={handleCreateQuestion} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Question
+                </label>
+                <textarea
+                  value={questionForm.question}
+                  onChange={(e) =>
+                    setQuestionForm({ ...questionForm, question: e.target.value })
+                  }
+                  required
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter your question here..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Answer Options
+                </label>
+                <div className="space-y-3">
+                  {questionForm.options.map((option, index) => (
+                    <div key={index} className="relative">
+                      <input
+                        type="text"
+                        value={option}
+                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                        placeholder={`Option ${String.fromCharCode(65 + index)}`}
+                        required
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      />
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Correct Answer
+                </label>
+                <input
+                  type="text"
+                  value={questionForm.solution}
+                  onChange={(e) =>
+                    setQuestionForm({ ...questionForm, solution: e.target.value })
+                  }
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Enter the correct answer exactly as written in options"
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
                 <button
-                  onClick={() => handleDeleteQuestion(question.id)}
-                  className="text-red-600 hover:text-red-900"
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  Add Question
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2 rounded-lg transition-colors font-medium"
+                >
+                  Cancel
                 </button>
               </div>
-
-              <p className="text-gray-700 mb-4">{question.question}</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-                {question.options.map((option, optionIndex) => (
-                  <div
-                    key={optionIndex}
-                    className={`p-2 rounded border ${
-                      option === question.solution
-                        ? "bg-green-100 border-green-300 text-green-800"
-                        : "bg-gray-50 border-gray-200"
-                    }`}
-                  >
-                    {option}
-                    {option === question.solution && (
-                      <span className="ml-2 text-xs font-medium">
-                        (Correct)
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))
+            </form>
+          </div>
         )}
+
+        {/* Questions List */}
+        <div className="space-y-6">
+          {questions.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <HelpCircle className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No questions yet</h3>
+              <p className="text-gray-600 mb-6">Start building your question set by adding your first question.</p>
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add First Question
+              </button>
+            </div>
+          ) : (
+            questions.map((question, index) => (
+              <div
+                key={question.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center">
+                    <span className="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mr-3">
+                      Q{index + 1}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteQuestion(question.id)}
+                    className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                    title="Delete question"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <p className="text-gray-900 font-medium mb-6 leading-relaxed">
+                  {question.question}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {question.options.map((option, optionIndex) => (
+                    <div
+                      key={optionIndex}
+                      className={`relative p-4 rounded-lg border transition-all ${
+                        option === question.solution
+                          ? "bg-green-50 border-green-200 text-green-900"
+                          : "bg-gray-50 border-gray-200 text-gray-700"
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold mr-3 ${
+                          option === question.solution
+                            ? "bg-green-200 text-green-800"
+                            : "bg-gray-200 text-gray-600"
+                        }`}>
+                          {String.fromCharCode(65 + optionIndex)}
+                        </span>
+                        <span className="flex-1">{option}</span>
+                        {option === question.solution && (
+                          <Check className="h-4 w-4 text-green-600 ml-2" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

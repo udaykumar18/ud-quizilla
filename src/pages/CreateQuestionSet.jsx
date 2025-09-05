@@ -7,11 +7,10 @@ const CreateQuestionSet = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    description: "", // Changed back to description to match backend
-    question_type: "MULTIPLE_CHOICE", // Added question_type field
-    difficulty: "EASY", // Changed to uppercase to match backend
-    time_limit: 30, // Changed default to 30 minutes
-    default_questions_limit: 8, // Changed default to 8
+    description: "",
+    question_type: "MULTIPLE_CHOICE",
+    difficulty: "EASY",
+    time_limit: 30,
   });
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +19,6 @@ const CreateQuestionSet = () => {
     setLoading(true);
 
     try {
-      // Send time_limit in minutes as per backend requirement
       await api.createQuestionSet(formData);
       toast.success("Question set created successfully!");
       navigate("/question-sets");
@@ -36,214 +34,308 @@ const CreateQuestionSet = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]:
-        name === "time_limit" || name === "default_questions_limit"
-          ? parseInt(value) || 0
-          : value,
+      [name]: name === "time_limit" ? parseInt(value) || 0 : value,
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 md:p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Enhanced Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl mb-6 shadow-2xl transform hover:scale-105 transition-transform duration-300">
+            <span className="text-3xl">📝</span>
+          </div>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-transparent mb-4">
             Create Question Set
           </h1>
-          <p className="text-lg text-gray-600">
-            Build a new question set for your assessments
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Build a new question set for your assessments with our modern interface
           </p>
         </div>
 
         {/* Main Form Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-            <h2 className="text-2xl font-semibold text-white">
-              Question Set Details
-            </h2>
-            <p className="text-blue-100 mt-1">
-              Fill in the information below to create your question set
-            </p>
+        <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 overflow-hidden">
+          <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-8">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Question Set Configuration
+              </h2>
+              <p className="text-blue-100 text-lg">
+                Fill in the information below to create your question set
+              </p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-10">
             {/* Basic Information */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-blue-600 font-bold text-sm">1</span>
+            <div className="space-y-8">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">1</span>
                 </div>
-                Basic Information
-              </h3>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Basic Information</h3>
+                  <p className="text-gray-600">Set up the fundamental details</p>
+                </div>
+              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="lg:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+              <div className="space-y-8">
+                <div className="group">
+                  <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">
                     Question Set Name *
                   </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="e.g., JavaScript Fundamentals"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                      placeholder="e.g., JavaScript Fundamentals"
+                      className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-400 group-hover:border-gray-300 shadow-sm hover:shadow-md"
+                    />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                  </div>
                 </div>
 
-                <div className="lg:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <div className="group">
+                  <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">
                     Description
                   </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    rows={4}
-                    placeholder="Describe what this question set covers..."
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400 resize-none"
-                  />
+                  <div className="relative">
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      rows={5}
+                      placeholder="Describe what this question set covers..."
+                      className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-400 resize-none group-hover:border-gray-300 shadow-sm hover:shadow-md"
+                    />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Configuration Settings */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
-                  <span className="text-indigo-600 font-bold text-sm">2</span>
+            <div className="space-y-8">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">2</span>
                 </div>
-                Configuration Settings
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  <h3 className="text-2xl font-bold text-gray-900">Configuration Settings</h3>
+                  <p className="text-gray-600">Set question type, difficulty, and timing</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Question Type */}
+                <div className="space-y-4">
+                  <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">
                     Question Type *
                   </label>
-                  <select
-                    name="question_type"
-                    value={formData.question_type}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white"
-                  >
-                    <option value="MULTIPLE_CHOICE">📝 Multiple Choice</option>
-                    <option value="SHORT_ANSWER">✍️ Short Answer</option>
-                  </select>
+                  <div className="space-y-3">
+                    <label className={`relative flex items-start p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg transform hover:scale-[1.02] ${
+                      formData.question_type === "MULTIPLE_CHOICE"
+                        ? 'border-blue-500 bg-blue-50 shadow-lg'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="question_type"
+                        value="MULTIPLE_CHOICE"
+                        checked={formData.question_type === "MULTIPLE_CHOICE"}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      <div className="flex items-start space-x-4 flex-1">
+                        <span className="text-3xl">📝</span>
+                        <div>
+                          <div className="font-bold text-gray-900 text-lg">Multiple Choice</div>
+                          <div className="text-sm text-gray-600">Select from options</div>
+                        </div>
+                      </div>
+                      {formData.question_type === "MULTIPLE_CHOICE" && (
+                        <div className="absolute top-4 right-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </label>
+
+                    <label className={`relative flex items-start p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg transform hover:scale-[1.02] ${
+                      formData.question_type === "SHORT_ANSWER"
+                        ? 'border-blue-500 bg-blue-50 shadow-lg'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}>
+                      <input
+                        type="radio"
+                        name="question_type"
+                        value="SHORT_ANSWER"
+                        checked={formData.question_type === "SHORT_ANSWER"}
+                        onChange={handleChange}
+                        className="sr-only"
+                      />
+                      <div className="flex items-start space-x-4 flex-1">
+                        <span className="text-3xl">✍️</span>
+                        <div>
+                          <div className="font-bold text-gray-900 text-lg">Short Answer</div>
+                          <div className="text-sm text-gray-600">Written responses</div>
+                        </div>
+                      </div>
+                      {formData.question_type === "SHORT_ANSWER" && (
+                        <div className="absolute top-4 right-4 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </label>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {/* Difficulty Level */}
+                <div className="space-y-4">
+                  <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">
                     Difficulty Level *
                   </label>
-                  <select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white"
-                  >
-                    <option value="EASY">🟢 Easy</option>
-                    <option value="MEDIUM">🟡 Medium</option>
-                    <option value="HARD">🔴 Hard</option>
-                  </select>
+                  <div className="space-y-3">
+                    {[
+                      { value: "EASY", label: "Easy", icon: "🟢", color: "text-green-600", bg: "bg-green-50 border-green-200" },
+                      { value: "MEDIUM", label: "Medium", icon: "🟡", color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-200" },
+                      { value: "HARD", label: "Hard", icon: "🔴", color: "text-red-600", bg: "bg-red-50 border-red-200" }
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className={`relative flex items-center p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:shadow-lg transform hover:scale-[1.02] ${
+                          formData.difficulty === option.value
+                            ? `${option.bg} border-current ${option.color} shadow-lg`
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="difficulty"
+                          value={option.value}
+                          checked={formData.difficulty === option.value}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        <div className="flex items-center space-x-4 flex-1">
+                          <span className="text-3xl">{option.icon}</span>
+                          <span className="font-bold text-gray-900 text-lg">{option.label}</span>
+                        </div>
+                        {formData.difficulty === option.value && (
+                          <div className="w-6 h-6 bg-current rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
+                {/* Time Limit */}
+                <div className="space-y-4">
+                  <label className="block text-sm font-bold text-gray-800 mb-4 uppercase tracking-wider">
                     Time Limit (minutes) *
                   </label>
-                  <input
-                    type="number"
-                    name="time_limit"
-                    value={formData.time_limit}
-                    onChange={handleChange}
-                    min="1"
-                    max="180"
-                    placeholder="30"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Maximum 180 minutes
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Default Questions Limit *
-                  </label>
-                  <input
-                    type="number"
-                    name="default_questions_limit"
-                    value={formData.default_questions_limit}
-                    onChange={handleChange}
-                    min="1"
-                    max="50"
-                    placeholder="8"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Number of questions to show by default (1-50)
-                  </p>
+                  <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 hover:border-gray-300 transition-colors hover:shadow-md">
+                    <div className="text-center mb-4">
+                      <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                        {formData.time_limit}
+                      </div>
+                      <div className="text-gray-600 font-semibold">minutes</div>
+                    </div>
+                    <input
+                      type="number"
+                      name="time_limit"
+                      value={formData.time_limit}
+                      onChange={handleChange}
+                      min="1"
+                      max="180"
+                      placeholder="30"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400 text-center font-semibold text-lg"
+                    />
+                    <p className="text-xs text-gray-500 mt-2 text-center font-medium">
+                      Maximum 180 minutes
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Summary Card */}
-            <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-6 border border-gray-200">
-              <h4 className="font-semibold text-gray-900 mb-3">Summary</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-600">Question Type:</span>
-                  <p className="font-semibold text-gray-900">
+            <div className="bg-gradient-to-r from-slate-50 via-white to-blue-50 rounded-2xl p-8 border-2 border-gray-100 shadow-inner">
+              <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                Summary
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Question Type</span>
+                  <p className="font-bold text-gray-900 text-lg mt-2">
                     {formData.question_type.replace("_", " ")}
                   </p>
                 </div>
-                <div>
-                  <span className="text-gray-600">Difficulty:</span>
-                  <p className="font-semibold text-gray-900 capitalize">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Difficulty</span>
+                  <p className="font-bold text-gray-900 text-lg mt-2 capitalize">
                     {formData.difficulty.toLowerCase()}
                   </p>
                 </div>
-                <div>
-                  <span className="text-gray-600">Time Limit:</span>
-                  <p className="font-semibold text-gray-900">
+                <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Time Limit</span>
+                  <p className="font-bold text-gray-900 text-lg mt-2">
                     {formData.time_limit} min
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Questions:</span>
-                  <p className="font-semibold text-gray-900">
-                    {formData.default_questions_limit}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-gray-100">
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="flex-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-[1.02]"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin mr-3"></div>
                     Creating Question Set...
                   </div>
                 ) : (
-                  "Create Question Set"
+                  <div className="flex items-center justify-center">
+                    <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    Create Question Set
+                  </div>
                 )}
               </button>
 
               <button
                 type="button"
                 onClick={() => navigate("/question-sets")}
-                className="flex-1 sm:flex-none bg-white text-gray-700 px-8 py-4 rounded-xl font-semibold hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 transition-all duration-200"
+                className="sm:w-auto bg-white text-gray-700 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
               >
-                Cancel
+                <div className="flex items-center justify-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Cancel
+                </div>
               </button>
             </div>
           </form>

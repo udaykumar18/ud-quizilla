@@ -230,7 +230,7 @@ const CandidateResult = () => {
                         Score: {setResult.score}
                       </div>
                       <div className="text-sm text-gray-600">
-                        Time Limit: {setResult.time_limit}s
+                        Time Limit: {setResult.time_limit}mins
                       </div>
                     </div>
                   </div>

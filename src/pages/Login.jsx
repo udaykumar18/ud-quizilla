@@ -29,6 +29,7 @@ const Login = () => {
       provider: "google",
       options: {
         redirectTo: "https://ud-quizilla.vercel.app/auth/callback",
+        // redirectTo:"http://localhost:5173/auth/callback",
       },
     });
   };
